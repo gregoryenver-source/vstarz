@@ -45,8 +45,17 @@ bunx vercel --prod
   immutable caching on hashed assets.
 - Only the Vercel CLI token (`VERCEL_TOKEN`) is needed — nothing else.
 
-The app will be live at `https://<project>.vercel.app/vstarz` — the proxy in
-step 3 points at it.
+The app is deployed and verified live at:
+
+- **Upstream (for the proxy):** `https://vstarz-judah-corp.vercel.app` — stable
+  production alias, use this as the Worker's `UPSTREAM`
+- **App entry:** `https://vstarz-judah-corp.vercel.app/vstarz`
+- Deep links verified: `/vstarz/dashboard`, `/vstarz/store`, `/vstarz/network`
+  all return 200; assets resolve under `/vstarz/assets/...` with the Convex URL
+  baked in.
+
+Redeploys: `bunx vercel --prod` (token-gated; the build script now lives in
+`scripts/vercel-build.sh`).
 
 ### Option B — Cloudflare Pages
 
@@ -63,7 +72,7 @@ Add a **Worker route** on the `judahcorporation.co.za` zone matching
 
 ```js
 // vstarz-proxy worker
-const UPSTREAM = "https://<your-project>.vercel.app"; // no trailing slash
+const UPSTREAM = "https://vstarz-judah-corp.vercel.app"; // no trailing slash
 
 export default {
   async fetch(request) {

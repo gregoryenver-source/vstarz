@@ -1,13 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "bun install",
-  "buildCommand": "bash -lc 'bun run build && mkdir -p dist/vstarz && cp -R dist/. dist/vstarz/'",
+  "buildCommand": "bash scripts/vercel-build.sh",
   "outputDirectory": "dist",
   "redirects": [
-    { "source": "/", "destination": "/vstarz/", "permanent": false },
-    { "source": "/vstarz", "destination": "/vstarz/", "permanent": false }
+    { "source": "/", "destination": "/vstarz/", "permanent": false }
   ],
   "rewrites": [
+    { "source": "/vstarz", "destination": "/vstarz/index.html" },
     { "source": "/vstarz/:path*", "destination": "/vstarz/index.html" }
   ],
   "trailingSlash": false,
@@ -25,9 +25,5 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
-  ],
-  "env": {
-    "VITE_APP_BASE": "/vstarz/",
-    "VITE_CONVEX_URL": "https://combative-kookabura-535.convex.cloud"
-  }
+  ]
 }
