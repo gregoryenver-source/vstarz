@@ -13,6 +13,14 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Competitions = lazy(() => import("./pages/Competitions.tsx"));
+const CompetitionDetail = lazy(() => import("./pages/CompetitionDetail.tsx"));
+const CreateCompetition = lazy(() => import("./pages/CreateCompetition.tsx"));
+const Profile = lazy(() => import("./pages/Profile.tsx"));
+const Live = lazy(() => import("./pages/Live.tsx"));
+const LiveRoom = lazy(() => import("./pages/LiveRoom.tsx"));
+const Boost = lazy(() => import("./pages/Boost.tsx"));
+const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -129,6 +137,78 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth>
                     <Dashboard />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/competitions"
+                element={
+                  <RequireAuth>
+                    <Competitions />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/competitions/new"
+                element={
+                  <RequireAuth>
+                    <CreateCompetition />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/competitions/:id"
+                element={
+                  <RequireAuth>
+                    <CompetitionDetail />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <RequireAuth>
+                    <Profile />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/profile/:userId"
+                element={
+                  <RequireAuth>
+                    <Profile />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/live"
+                element={
+                  <RequireAuth>
+                    <Live />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/live/:id"
+                element={
+                  <RequireAuth>
+                    <LiveRoom />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/boost"
+                element={
+                  <RequireAuth>
+                    <Boost />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth>
+                    <Admin />
                   </RequireAuth>
                 }
               />
