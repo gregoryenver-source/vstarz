@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { VStarzLogo } from "@/components/VStarzLogo";
 import { Link } from "react-router";
 
 export default function NotFound() {
@@ -14,10 +14,8 @@ export default function NotFound() {
       <div className="relative flex flex-1 flex-col items-center justify-center">
         <div className="absolute inset-0 bg-stage-grid opacity-30" />
         <div className="relative mx-auto max-w-5xl px-4 text-center">
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-roc">
-              <Star className="size-5 fill-current" />
-            </div>
+          <div className="mb-6 flex items-center justify-center gap-2.5">
+            <VStarzLogo className="size-10" glow={false} />
             <span className="font-display text-2xl font-bold">VStarz</span>
           </div>
           <h1 className="font-display text-7xl font-bold text-gradient-roc">

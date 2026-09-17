@@ -14,6 +14,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 
+import { VStarzLogo } from "@/components/VStarzLogo";
 import { useAuth } from "@/hooks/use-auth";
 import { Sparkles, Star, Loader2, Mail, ArrowRight, UserX, KeyRound } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
@@ -113,9 +114,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       <div className="flex-1 flex items-center justify-center p-4 relative">
         <div className="w-full max-w-md">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-glow-roc">
-              <Star className="size-5 fill-current" />
-            </div>
+            <VStarzLogo className="size-12" glow={false} />
             <div className="leading-none">
               <span className="font-display text-3xl font-bold">
                 VStarz

@@ -130,8 +130,9 @@
     @apply bg-background text-foreground;
     font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
     background-image:
-      radial-gradient(44rem 30rem at 15% -12%, oklch(0.35 0.12 27.5 / 16%), transparent 60%),
-      radial-gradient(40rem 26rem at 90% -5%, oklch(0.3 0.06 27.5 / 10%), transparent 55%);
+      radial-gradient(50rem 32rem at 18% -8%, oklch(0.42 0.19 27.5 / 20%), transparent 62%),
+      radial-gradient(44rem 28rem at 85% -4%, oklch(0.34 0.15 27.5 / 14%), transparent 58%),
+      radial-gradient(60rem 40rem at 50% 118%, oklch(0.3 0.14 27.5 / 12%), transparent 60%);
     background-attachment: fixed;
   }
   h1, h2, h3, .font-display {
@@ -167,7 +168,17 @@
     background-size: 44px 44px;
   }
   .shadow-glow-roc {
-    box-shadow: 0 0 22px oklch(0.56 0.243 27.5 / 40%), 0 0 60px oklch(0.5 0.2 27.5 / 18%);
+    box-shadow: 0 0 22px oklch(0.56 0.243 27.5 / 45%), 0 0 64px oklch(0.5 0.2 27.5 / 22%);
+  }
+  /* Signature V emblem glow — matches the brand mark's red radiance */
+  .v-glow {
+    filter: drop-shadow(0 0 18px oklch(0.6 0.25 27.5 / 0.55))
+      drop-shadow(0 0 60px oklch(0.5 0.22 27.5 / 0.35));
+  }
+  .hero-red-haze {
+    background:
+      radial-gradient(38rem 30rem at 32% 42%, oklch(0.5 0.22 27.5 / 22%), transparent 60%),
+      radial-gradient(30rem 26rem at 68% 30%, oklch(0.42 0.19 27.5 / 16%), transparent 55%);
   }
   .card-spot {
     border: 1px solid oklch(0.98 0 0 / 12%);

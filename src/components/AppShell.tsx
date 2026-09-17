@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { VStarzLogo } from "@/components/VStarzLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -116,12 +117,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <Menu className="size-5" />
           </Button>
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-roc">
-              <Star className="size-4 fill-current" />
-            </div>
-            <span className="hidden font-display text-xl font-bold text-gradient-roc sm:block">
-              vStarz
+          <Link to="/dashboard" className="flex items-center gap-2.5">
+            <VStarzLogo className="size-8" glow={false} />
+            <span className="hidden font-display text-xl font-bold tracking-wide sm:block">
+              VStarz
             </span>
           </Link>
 
@@ -133,6 +132,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span className="hidden text-muted-foreground sm:inline">credits</span>
               </Link>
             </Button>
+
 
             {/* Notifications */}
             <Popover>

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  Star,
   Trophy,
   Radio,
   Heart,
@@ -29,6 +28,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { VStarzLogo } from "@/components/VStarzLogo";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "react-router";
 
@@ -110,6 +110,12 @@ const creditPacks = [
   { credits: "500 votes", price: "R299" },
 ];
 
+const leaderboardRows = [
+  { name: "Thabo M.", tag: "Singing", public: 12480, score: 92 },
+  { name: "Aisha K.", tag: "Dance", public: 10912, score: 88 },
+  { name: "Nova L.", tag: "Rap", public: 9433, score: 84 },
+];
+
 export default function Landing() {
   const { isAuthenticated } = useAuth();
 
@@ -123,10 +129,8 @@ export default function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-roc">
-              <Star className="size-4 fill-current" />
-            </div>
+          <Link to="/" className="flex items-center gap-2.5">
+            <VStarzLogo className="size-8" glow={false} />
             <div className="leading-none">
               <span className="font-display text-xl font-bold tracking-wide">
                 VStarz
@@ -135,7 +139,7 @@ export default function Landing() {
                 Powered by Roc Nation Africa
               </span>
             </div>
-          </div>
+          </Link>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#voting" className="transition-colors hover:text-foreground">Voting</a>
             <a href="#features" className="transition-colors hover:text-foreground">Features</a>
@@ -157,107 +161,164 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero — signature layout: giant glowing V left, headline right */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-stage-grid opacity-50" />
-        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-24 text-center">
+        <div className="absolute inset-0 bg-stage-grid opacity-40" />
+        <div className="hero-red-haze absolute inset-0" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-16 pb-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-6 lg:pt-20">
+          {/* The emblem */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative mx-auto flex w-full max-w-[320px] items-center justify-center lg:max-w-[420px]"
           >
-            <Flame className="size-3.5" />
-            Season 1 auditions are now open
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.5 }}
-            className="mb-3 font-mont text-xs font-bold uppercase tracking-[0.3em] text-silver"
-          >
-            Africa's Digital Talent Revolution
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="mx-auto max-w-3xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
-          >
-            The world's first
-            <span className="block text-gradient-roc">digital mobile talent contest</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
-          >
-            VStarz™ is a premium talent contest built for mobile. Post your
-            audition video, get scored by professional judges, and let the
-            public vote crown Africa's next star — entirely from your phone.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
-          >
-            <Button asChild size="lg" className="h-12 px-8 text-base font-semibold shadow-glow-roc">
-              <Link to="/auth?returnTo=%2Fdashboard">
-                <Sparkles className="size-5" />
-                Post your audition
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
-              <Link to="/auth?returnTo=%2Fcompetitions">
-                <Play className="size-5" />
-                Watch the talent
-              </Link>
-            </Button>
+            <div className="absolute inset-0 -z-10 mx-auto aspect-square w-[85%] rounded-full bg-primary/25 blur-[90px]" />
+            <VStarzLogo className="v-glow w-full" />
           </motion.div>
 
-          {/* Spotlight visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.7 }}
-            className="relative mx-auto mt-16 max-w-4xl"
-          >
-            <div className="absolute -inset-8 rounded-[2.5rem] bg-primary/10 blur-3xl" />
-            <div className="card-spot relative rounded-3xl p-2 shadow-2xl">
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-accent/60 via-card to-background p-6 sm:p-10">
-                <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl" />
-                <div className="relative grid grid-cols-3 gap-4">
-                  {["Thabo M.", "Aisha K.", "Nova L."].map((name, i) => (
-                    <div key={name} className="rounded-xl border border-border/60 bg-card/80 p-3 text-center">
-                      <div className={`mx-auto mb-2 flex size-10 items-center justify-center rounded-full text-sm font-bold ${i === 0 ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
+          {/* Headline block */}
+          <div className="text-center lg:text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.5 }}
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary"
+            >
+              <Flame className="size-3.5" />
+              Season 1 auditions are now open
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="mb-3 font-mont text-xs font-bold uppercase tracking-[0.3em] text-silver"
+            >
+              Africa's Digital Talent Revolution
+            </motion.p>
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.5 }}
+              className="font-display text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl"
+            >
+              The world's first
+              <span className="block text-gradient-roc">digital mobile talent contest</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5 }}
+              className="mt-6 max-w-xl text-lg text-muted-foreground max-lg:mx-auto"
+            >
+              VStarz™ is a premium talent contest built for mobile. Post your
+              audition video, get scored by professional judges, and let the
+              public vote crown Africa's next star — entirely from your phone.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.5 }}
+              className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start"
+            >
+              <Button asChild size="lg" className="h-12 px-8 text-base font-semibold shadow-glow-roc">
+                <Link to="/auth?returnTo=%2Fdashboard">
+                  <Sparkles className="size-5" />
+                  Post your audition
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
+                <Link to="/auth?returnTo=%2Fcompetitions">
+                  <Play className="size-5" />
+                  Watch the talent
+                </Link>
+              </Button>
+            </motion.div>
+
+            {/* Trust strip */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground lg:justify-start"
+            >
+              <span className="flex items-center gap-2">
+                <Users className="size-4 text-primary" />
+                <span className="font-mont font-bold text-foreground">12,400+</span> performers
+              </span>
+              <span className="flex items-center gap-2">
+                <Video className="size-4 text-primary" />
+                <span className="font-mont font-bold text-foreground">8,900+</span> auditions
+              </span>
+              <span className="flex items-center gap-2">
+                <Vote className="size-4 text-primary" />
+                <span className="font-mont font-bold text-foreground">1.2M+</span> votes cast
+              </span>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Spotlight leaderboard strip */}
+      <section className="border-y border-border/50 bg-card/40 py-10">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="relative mx-auto max-w-4xl">
+            <div className="card-spot rounded-3xl p-2 shadow-2xl">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-accent/60 via-card to-background p-6 sm:p-8">
+                <div className="absolute left-1/2 top-0 h-56 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl" />
+                <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3">
+                  <p className="font-display text-xl font-bold">Season 1 · Combined leaderboard</p>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="relative flex size-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                      <span className="relative inline-flex size-2 rounded-full bg-primary" />
+                    </span>
+                    Live · voting closes in 4 days
+                  </span>
+                </div>
+                <div className="relative space-y-2.5">
+                  {leaderboardRows.map((row, i) => (
+                    <div
+                      key={row.name}
+                      className="flex items-center gap-4 rounded-xl border border-border/60 bg-card/80 px-4 py-3"
+                    >
+                      <span
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-full font-display text-lg font-bold ${
+                          i === 0 ? "bg-primary text-primary-foreground shadow-glow-roc" : "bg-secondary text-secondary-foreground"
+                        }`}
+                      >
                         {i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold">{row.name}</p>
+                        <p className="text-xs text-muted-foreground">{row.tag} · {row.public.toLocaleString()} public votes</p>
                       </div>
-                      <p className="text-sm font-semibold">{name}</p>
-                      <p className="text-xs text-muted-foreground">{[12480, 10912, 9433][i]} votes</p>
+                      <div className="hidden w-40 sm:block">
+                        <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                          <motion.div
+                            initial={{ width: "8%" }}
+                            whileInView={{ width: `${row.score}%` }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.4 + i * 0.15, duration: 1, ease: "easeOut" }}
+                            className="h-full rounded-full bg-primary"
+                          />
+                        </div>
+                      </div>
+                      <span className="font-display text-xl font-bold text-gradient-roc">{row.score}</span>
                     </div>
                   ))}
                 </div>
-                <div className="relative mt-6 h-2 overflow-hidden rounded-full bg-secondary">
-                  <motion.div
-                    initial={{ width: "10%" }}
-                    animate={{ width: "82%" }}
-                    transition={{ delay: 1, duration: 1.4, ease: "easeOut" }}
-                    className="h-full rounded-full bg-primary shadow-glow-roc"
-                  />
-                </div>
-                <p className="relative mt-3 text-xs text-muted-foreground">
-                  Live leaderboard · Round 2 · voting closes in 4 days
+                <p className="relative mt-4 text-center text-xs text-muted-foreground">
+                  Combined score = 40% public vote + 60% judge score
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Voting system */}
-      <section id="voting" className="border-y border-border/50 bg-card/40 py-24">
+      <section id="voting" className="border-b border-border/50 bg-card/40 py-24">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <Badge variant="outline" className="mb-4 border-primary/40 text-primary">
@@ -516,7 +577,7 @@ export default function Landing() {
                   "Monthly bonus voting credits",
                 ].map((p) => (
                   <li key={p} className="flex items-center gap-2">
-                    <Star className="size-3.5 fill-current text-primary" />
+                    <Sparkles className="size-3.5 text-primary" />
                     {p}
                   </li>
                 ))}
@@ -533,6 +594,7 @@ export default function Landing() {
       <section className="relative overflow-hidden py-28">
         <div className="absolute inset-0 bg-stage-grid opacity-40" />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
+          <VStarzLogo className="v-glow mx-auto mb-8 w-24" />
           <h2 className="font-display text-4xl font-bold sm:text-5xl">
             Your audience is <span className="text-gradient-roc">waiting</span>
           </h2>
@@ -554,9 +616,7 @@ export default function Landing() {
       <footer className="border-t border-border/50 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-muted-foreground sm:flex-row">
           <div className="flex items-center gap-2">
-            <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Star className="size-3.5 fill-current" />
-            </div>
+            <VStarzLogo className="size-7" glow={false} />
             <div className="leading-none">
               <span className="font-display font-bold">VStarz™</span>
               <span className="block text-[9px] uppercase tracking-[0.18em]">
