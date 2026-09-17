@@ -316,7 +316,7 @@ function ProfilePublic({
       <div className="card-spot relative overflow-hidden rounded-3xl p-6 sm:p-8">
         <div className="absolute inset-0 bg-stage-grid opacity-25" />
         <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-          <Avatar className="size-20 border-2 border-primary/40 shadow-glow-gold">
+          <Avatar className="size-20 border-2 border-primary/40 shadow-glow-roc">
             <AvatarImage src={user?.image} />
             <AvatarFallback className="bg-secondary text-2xl">
               {(user?.name ?? "S")[0]?.toUpperCase()}
@@ -330,7 +330,7 @@ function ProfilePublic({
               {user?.plan && user.plan !== "free" && (
                 <Badge className="border border-primary/40 bg-primary/15 text-primary">
                   <Crown className="mr-1 size-3" />
-                  {user.plan === "premium_pro" ? "Premium Pro" : "Premium"}
+                  VStarz Gold
                 </Badge>
               )}
               {user?.isTalent && (

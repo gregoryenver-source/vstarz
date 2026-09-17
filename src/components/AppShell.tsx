@@ -117,10 +117,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Menu className="size-5" />
           </Button>
           <Link to="/dashboard" className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-gold">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-roc">
               <Star className="size-4 fill-current" />
             </div>
-            <span className="hidden font-display text-xl font-bold text-gradient-gold sm:block">
+            <span className="hidden font-display text-xl font-bold text-gradient-roc sm:block">
               vStarz
             </span>
           </Link>
@@ -140,7 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="size-5" />
                   {unread > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-rose text-[10px] font-bold text-white">
+                    <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}
@@ -219,7 +219,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     {plan !== "free" && (
                       <Badge className="bg-primary text-primary-foreground">
                         <Crown className="mr-1 size-3" />
-                        {plan === "premium_pro" ? "Pro" : "Premium"}
+                        Gold
                       </Badge>
                     )}
                   </div>

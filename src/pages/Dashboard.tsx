@@ -64,13 +64,14 @@ export default function Dashboard() {
           </Badge>
           <h1 className="font-display text-3xl font-bold sm:text-4xl">
             Welcome back,{" "}
-            <span className="text-gradient-gold">
+            <span className="text-gradient-roc">
               {user?.name?.split(" ")[0] ?? user?.username ?? "Star"}
             </span>
           </h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Post auditions, grow your following, and follow every contest from
-            your personal dashboard.
+            Post auditions, grow your following, and follow every contest
+            from your personal dashboard. Africa's Digital Talent Revolution
+            starts here.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="font-semibold">
@@ -155,7 +156,7 @@ export default function Dashboard() {
           <Card className="card-spot">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Radio className="size-4 text-rose" /> Live now
+                <Radio className="size-4 text-primary" /> Live now
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -172,8 +173,8 @@ export default function Dashboard() {
                     className="flex items-center gap-3 rounded-xl border border-border/50 bg-secondary/40 p-3 transition-colors hover:border-primary/40"
                   >
                     <span className="relative flex size-2.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose opacity-60" />
-                      <span className="relative inline-flex size-2.5 rounded-full bg-rose" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                      <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{r.title}</p>

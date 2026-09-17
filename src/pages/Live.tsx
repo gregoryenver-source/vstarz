@@ -107,8 +107,8 @@ export default function Live() {
 
       <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-bold">
         <span className="relative flex size-3">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose opacity-60" />
-          <span className="relative inline-flex size-3 rounded-full bg-rose" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+          <span className="relative inline-flex size-3 rounded-full bg-primary" />
         </span>
         On air now
       </h2>
@@ -126,7 +126,7 @@ export default function Live() {
             <Link key={r._id} to={`/live/${r._id}`} className="group block">
               <div className="card-spot overflow-hidden rounded-2xl transition-transform group-hover:-translate-y-1">
                 <div className="relative aspect-video bg-gradient-to-br from-accent/70 via-card to-background">
-                  <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-rose/90 px-2.5 py-1 text-xs font-bold text-white">
+                  <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-primary/90 px-2.5 py-1 text-xs font-bold text-white">
                     <span className="size-1.5 animate-pulse rounded-full bg-white" />
                     LIVE
                   </div>

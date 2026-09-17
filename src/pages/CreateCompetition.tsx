@@ -64,7 +64,8 @@ export default function CreateCompetition() {
       <div className="mx-auto max-w-2xl">
         <h1 className="font-display text-3xl font-bold">Host a competition</h1>
         <p className="mt-1 text-muted-foreground">
-          Create the stage, set the prize, and open auditions.
+          Create the stage, set the prize, and open auditions. Every contest
+          blends 40% public voting with 60% judge scoring.
         </p>
 
         <Card className="card-spot mt-8">
@@ -85,7 +86,7 @@ export default function CreateCompetition() {
                   id="c-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Rising Starz: Season 2"
+                  placeholder="e.g. Rising Starz: Season 2 — Gospel Edition"
                   required
                 />
               </div>

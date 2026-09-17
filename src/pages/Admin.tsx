@@ -52,7 +52,7 @@ import { Link, Navigate } from "react-router";
 import { useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 
-const usd = (cents: number) =>
+const zar = (cents: number) =>
   `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function Admin() {
@@ -124,7 +124,7 @@ export default function Admin() {
   return (
     <AppShell>
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-glow-gold">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-glow-roc">
           <ShieldCheck className="size-6" />
         </div>
         <div>
@@ -158,7 +158,7 @@ export default function Admin() {
           <TabsTrigger value="moderation">
             Moderation
             {queue.length > 0 && (
-              <Badge className="ml-2 bg-rose/20 text-rose">{queue.length}</Badge>
+              <Badge className="ml-2 bg-primary/20 text-primary">{queue.length}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
@@ -167,7 +167,7 @@ export default function Admin() {
         <TabsContent value="revenue" className="space-y-6">
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
             {[
-              { label: "Gross revenue", value: usd(revenue?.grossCents ?? 0), icon: DollarSign },
+              { label: "Gross revenue", value: zar(revenue?.grossCents ?? 0), icon: DollarSign },
               { label: "Subscriptions", value: revenue?.subs ?? 0, icon: Crown },
               { label: "Credit sales", value: revenue?.creditSalesCount ?? 0, icon: Star },
               { label: "Users", value: revenue?.totalUsers ?? 0, icon: Users },
@@ -192,22 +192,22 @@ export default function Admin() {
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={revenue?.monthly ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.98 0.02 85 / 8%)" />
-                    <XAxis dataKey="month" stroke="oklch(0.7 0.02 285)" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.98 0 0 / 8%)" />
+                    <XAxis dataKey="month" stroke="oklch(0.72 0 0)" fontSize={12} />
                     <YAxis
-                      stroke="oklch(0.7 0.02 285)"
+                      stroke="oklch(0.72 0 0)"
                       fontSize={12}
                       tickFormatter={(v: number) => `$${Math.round(v / 100)}`}
                     />
                     <ReTooltip
-                      formatter={(v: number) => [usd(v), "Revenue"]}
+                      formatter={(v: number) => [zar(v), "Revenue"]}
                       contentStyle={{
-                        background: "oklch(0.17 0.03 285)",
-                        border: "1px solid oklch(0.98 0.02 85 / 12%)",
+                        background: "oklch(0.185 0 0)",
+                        border: "1px solid oklch(0.98 0 0 / 12%)",
                         borderRadius: 8,
                       }}
                     />
-                    <Bar dataKey="cents" fill="oklch(0.83 0.16 85)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="cents" fill="oklch(0.56 0.243 27.5)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -240,7 +240,7 @@ export default function Admin() {
                 </Badge>
                 {u.plan && u.plan !== "free" && (
                   <Badge className="border border-primary/40 bg-primary/15 text-primary">
-                    {u.plan === "premium_pro" ? "Pro" : "Premium"}
+                    Gold
                   </Badge>
                 )}
                 <Select

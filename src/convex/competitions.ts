@@ -146,17 +146,39 @@ export const getLeaderboard = query({
         q.eq("competitionId", args.competitionId).eq("status", "approved"),
       )
       .collect();
-    entries.sort((a, b) => b.voteCount - a.voteCount);
-    const limit = args.limit ?? 20;
-    const top = entries.slice(0, limit);
-    const withUsers = await Promise.all(
-      top.map(async (e) => {
+
+    // Combined weighted score: 40% public vote, 60% judge score (defaults).
+    const comp = await ctx.db.get(args.competitionId);
+    const publicWeight = (comp?.publicVoteWeight ?? 40) / 100;
+    const judgeWeight = (comp?.judgeScoreWeight ?? 60) / 100;
+
+    const maxVotes = Math.max(...entries.map((e) => e.voteCount), 1);
+    const decorated = await Promise.all(
+      entries.map(async (e) => {
         const u = await ctx.db.get(e.userId);
+        const feedback = await ctx.db
+          .query("judgeFeedback")
+          .withIndex("by_entry", (q) => q.eq("entryId", e._id))
+          .collect();
+        const judgeScore =
+          feedback.length > 0
+            ? Math.round(
+                feedback.reduce((sum, f) => sum + f.score, 0) / feedback.length,
+              )
+            : null;
+        const publicScore = Math.round((e.voteCount / maxVotes) * 100);
+        const combined =
+          judgeScore === null
+            ? publicScore
+            : Math.round(publicScore * publicWeight + judgeScore * judgeWeight);
         return {
           _id: e._id,
           title: e.title,
           videoUrl: e.videoUrl,
           voteCount: e.voteCount,
+          judgeScore,
+          publicScore,
+          combinedScore: combined,
           user: u
             ? {
                 _id: u._id,
@@ -168,7 +190,8 @@ export const getLeaderboard = query({
         };
       }),
     );
-    return withUsers;
+    decorated.sort((a, b) => b.combinedScore - a.combinedScore);
+    return decorated.slice(0, args.limit ?? 20);
   },
 });
 

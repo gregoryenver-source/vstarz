@@ -6,13 +6,17 @@ import { v } from "convex/values";
 
 const DEFAULT_CATEGORIES = [
   { name: "Singing", slug: "singing", icon: "mic", sortOrder: 1 },
-  { name: "Dancing", slug: "dancing", icon: "footprints", sortOrder: 2 },
-  { name: "Comedy", slug: "comedy", icon: "laugh", sortOrder: 3 },
-  { name: "Magic", slug: "magic", icon: "wand-sparkles", sortOrder: 4 },
-  { name: "Music", slug: "music", icon: "music", sortOrder: 5 },
+  { name: "Rap", slug: "rap", icon: "audio-lines", sortOrder: 2 },
+  { name: "Dance", slug: "dance", icon: "footprints", sortOrder: 3 },
+  { name: "DJ", slug: "dj", icon: "disc-3", sortOrder: 4 },
+  { name: "Comedy", slug: "comedy", icon: "laugh", sortOrder: 5 },
   { name: "Acting", slug: "acting", icon: "drama", sortOrder: 6 },
-  { name: "Acrobatics", slug: "acrobatics", icon: "zap", sortOrder: 7 },
-  { name: "Other", slug: "other", icon: "sparkles", sortOrder: 8 },
+  { name: "Spoken Word", slug: "spoken-word", icon: "quote", sortOrder: 7 },
+  { name: "Gospel", slug: "gospel", icon: "church", sortOrder: 8 },
+  { name: "Instrumentalist", slug: "instrumentalist", icon: "guitar", sortOrder: 9 },
+  { name: "Fashion", slug: "fashion", icon: "shirt", sortOrder: 10 },
+  { name: "Content Creator", slug: "content-creator", icon: "camera", sortOrder: 11 },
+  { name: "Open Category", slug: "open", icon: "sparkles", sortOrder: 12 },
 ];
 
 async function requireUser(ctx: QueryCtx) {
@@ -26,9 +30,10 @@ async function requireUser(ctx: QueryCtx) {
 export const seedAll = mutation({
   args: {},
   handler: async (ctx) => {
-    const existingCats = await ctx.db.query("talentCategories").first();
-    if (!existingCats) {
-      for (const c of DEFAULT_CATEGORIES) {
+    const existingCats = await ctx.db.query("talentCategories").collect();
+    const existingSlugs = new Set(existingCats.map((c) => c.slug));
+    for (const c of DEFAULT_CATEGORIES) {
+      if (!existingSlugs.has(c.slug)) {
         await ctx.db.insert("talentCategories", c);
       }
     }
@@ -61,7 +66,7 @@ export const createDemoData = mutation({
     const openId = await ctx.db.insert("competitions", {
       title: "Rising Starz: Season 1",
       description:
-        "Our flagship open-call competition. Submit your audition video, rally your fans, and take the stage. Top 3 win a featured showcase on the vStarz homepage.",
+        "The flagship open-call of Season 1. Submit your audition video (30 seconds to 5 minutes), rally your fans, and let the 40% public vote and 60% judge score decide who takes the crown.",
       categorySlug: "singing",
       prize: "Featured showcase + 10,000 credits",
       status: "submissions_open",
@@ -74,8 +79,8 @@ export const createDemoData = mutation({
     await ctx.db.insert("competitions", {
       title: "Dance Floor Blitz",
       description:
-        "30-second dance routines, judged by the community. Voting is now open — back your favorite performer with voting credits.",
-      categorySlug: "dancing",
+        "30-second dance routines from Mzansi's best movers. Voting is now open — back your favorite performer with voting credits.",
+      categorySlug: "dance",
       prize: "Pro studio session",
       status: "voting_open",
       createdBy: userId,
@@ -87,7 +92,7 @@ export const createDemoData = mutation({
     await ctx.db.insert("competitions", {
       title: "Comedy Clash: Finals",
       description:
-        "Last season's comedy showdown has wrapped. Relive the winning sets and see the final leaderboard.",
+        "Last season's comedy showdown has wrapped. Relive the winning sets and see the final combined leaderboard.",
       categorySlug: "comedy",
       prize: "Headline slot at Starz Live",
       status: "closed",

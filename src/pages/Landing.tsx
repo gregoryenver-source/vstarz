@@ -13,39 +13,60 @@ import {
   ChevronRight,
   Flame,
   Mic,
+  AudioLines,
   Footprints,
-  Drama,
-  Wand2,
-  Guitar,
+  Disc3,
+  Laugh,
   Clapperboard,
-  Zap,
-  LayoutGrid,
+  Quote,
+  Church,
+  Guitar,
+  Shirt,
+  Camera,
+  Gavel,
+  Scale,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "react-router";
 
+const categories = [
+  { name: "Singing", icon: Mic },
+  { name: "Rap", icon: AudioLines },
+  { name: "Dance", icon: Footprints },
+  { name: "DJ", icon: Disc3 },
+  { name: "Comedy", icon: Laugh },
+  { name: "Acting", icon: Clapperboard },
+  { name: "Spoken Word", icon: Quote },
+  { name: "Gospel", icon: Church },
+  { name: "Instrumentalist", icon: Guitar },
+  { name: "Fashion", icon: Shirt },
+  { name: "Content Creator", icon: Camera },
+  { name: "Open Category", icon: Sparkles },
+];
+
 const features = [
   {
     icon: Video,
     title: "Video Auditions",
-    body: "Perform once, reach everyone. Upload your audition from any device and put your talent in front of judges and fans.",
+    body: "Perform once, reach a continent. Upload your audition in 30-second, 60-second, 3-minute or 5-minute formats — straight from your phone.",
   },
   {
-    icon: Vote,
-    title: "Credit-Based Voting",
-    body: "Every vote carries weight. Fans support their favorites with voting credits, so rankings reflect genuine enthusiasm.",
+    icon: Scale,
+    title: "Judged & Voted",
+    body: "Every contest blends 40% public voting with 60% professional judge scoring, so talent and fan support both decide the outcome.",
   },
   {
     icon: Radio,
     title: "Live Show Nights",
-    body: "Broadcast to your audience in real time with live chat, reactions, and voting that decides winners as it happens.",
+    body: "Artists go live for sessions, competitions and fan engagement. Real-time chat, live voting and judge commentary as it happens.",
   },
   {
     icon: Trophy,
     title: "Leaderboards & Results",
-    body: "Transparent standings, updated instantly. Season champions earn featured placement across the platform.",
+    body: "Combined weighted standings, updated instantly. Season champions earn featured placement across the platform.",
   },
   {
     icon: Heart,
@@ -53,21 +74,10 @@ const features = [
     body: "Followers are notified the moment you post an audition or go live — your fanbase builds with every performance.",
   },
   {
-    icon: Crown,
-    title: "Premium Membership",
-    body: "Monthly credit allowances, early access to new contests, and featured placement for members who mean business.",
+    icon: ShieldCheck,
+    title: "Fair, Protected Contests",
+    body: "AI-assisted moderation screens profanity, copyright and fraudulent votes, keeping every competition credible.",
   },
-];
-
-const categories = [
-  { name: "Singing", icon: Mic },
-  { name: "Dancing", icon: Footprints },
-  { name: "Comedy", icon: Drama },
-  { name: "Magic", icon: Wand2 },
-  { name: "Music", icon: Guitar },
-  { name: "Acting", icon: Clapperboard },
-  { name: "Acrobatics", icon: Zap },
-  { name: "More", icon: LayoutGrid },
 ];
 
 const steps = [
@@ -79,7 +89,7 @@ const steps = [
   {
     n: "02",
     title: "Post your audition",
-    body: "Upload a video to an open contest. Our review team verifies every entry before it goes live.",
+    body: "Upload a video to an open contest. Judges review every entry before it takes the stage.",
   },
   {
     n: "03",
@@ -89,8 +99,15 @@ const steps = [
   {
     n: "04",
     title: "Take the crown",
-    body: "Finish on top and your win is featured across vStarz — the spotlight that keeps working for you.",
+    body: "Finish on top of the combined leaderboard and your win is featured across VStarz.",
   },
+];
+
+const creditPacks = [
+  { credits: "10 votes", price: "R10" },
+  { credits: "50 votes", price: "R40" },
+  { credits: "100 votes", price: "R75" },
+  { credits: "500 votes", price: "R299" },
 ];
 
 export default function Landing() {
@@ -107,18 +124,24 @@ export default function Landing() {
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-gold">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-glow-roc">
               <Star className="size-4 fill-current" />
             </div>
-            <span className="font-display text-xl font-bold text-gradient-gold">
-              vStarz
-            </span>
+            <div className="leading-none">
+              <span className="font-display text-xl font-bold tracking-wide">
+                VStarz
+              </span>
+              <span className="block font-mont text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Powered by Roc Nation Africa
+              </span>
+            </div>
           </div>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
-            <a href="#live" className="hover:text-foreground transition-colors">Live</a>
-            <a href="#pricing" className="hover:text-foreground transition-colors">Premium</a>
+            <a href="#voting" className="transition-colors hover:text-foreground">Voting</a>
+            <a href="#features" className="transition-colors hover:text-foreground">Features</a>
+            <a href="#how" className="transition-colors hover:text-foreground">How it works</a>
+            <a href="#live" className="transition-colors hover:text-foreground">Live</a>
+            <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
           </nav>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
@@ -126,7 +149,7 @@ export default function Landing() {
             </Button>
             <Button asChild size="sm" className="font-semibold">
               <Link to="/auth?returnTo=%2Fdashboard">
-                Join vStarz
+                Join VStarz
                 <ChevronRight className="size-4" />
               </Link>
             </Button>
@@ -137,7 +160,8 @@ export default function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-stage-grid opacity-50" />
-        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-24 text-center">          <motion.div
+        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-24 text-center">
+          <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
@@ -146,6 +170,14 @@ export default function Landing() {
             <Flame className="size-3.5" />
             Season 1 auditions are now open
           </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+            className="mb-3 font-mont text-xs font-bold uppercase tracking-[0.3em] text-silver"
+          >
+            Africa's Digital Talent Revolution
+          </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -153,7 +185,7 @@ export default function Landing() {
             className="mx-auto max-w-3xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
           >
             The world's first
-            <span className="block text-gradient-gold">digital talent contest</span>
+            <span className="block text-gradient-roc">digital mobile talent contest</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -161,9 +193,9 @@ export default function Landing() {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
           >
-            vStarz App is a premium talent contest built for mobile. Post your
-            audition video, build a following, and let the audience vote you
-            into the spotlight — entirely from your phone.
+            VStarz™ is a premium talent contest built for mobile. Post your
+            audition video, get scored by professional judges, and let the
+            public vote crown Africa's next star — entirely from your phone.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -171,16 +203,16 @@ export default function Landing() {
             transition={{ delay: 0.4, duration: 0.5 }}
             className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
-            <Button asChild size="lg" className="h-12 px-8 text-base font-semibold shadow-glow-gold">
+            <Button asChild size="lg" className="h-12 px-8 text-base font-semibold shadow-glow-roc">
               <Link to="/auth?returnTo=%2Fdashboard">
                 <Sparkles className="size-5" />
                 Post your audition
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
-              <Link to="/dashboard">
+              <Link to="/auth?returnTo=%2Fcompetitions">
                 <Play className="size-5" />
-                Browse the catalog
+                Watch the talent
               </Link>
             </Button>
           </motion.div>
@@ -197,7 +229,7 @@ export default function Landing() {
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-accent/60 via-card to-background p-6 sm:p-10">
                 <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl" />
                 <div className="relative grid grid-cols-3 gap-4">
-                  {["Aria V.", "Dre K.", "Nova L."].map((name, i) => (
+                  {["Thabo M.", "Aisha K.", "Nova L."].map((name, i) => (
                     <div key={name} className="rounded-xl border border-border/60 bg-card/80 p-3 text-center">
                       <div className={`mx-auto mb-2 flex size-10 items-center justify-center rounded-full text-sm font-bold ${i === 0 ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
                         {i + 1}
@@ -212,7 +244,7 @@ export default function Landing() {
                     initial={{ width: "10%" }}
                     animate={{ width: "82%" }}
                     transition={{ delay: 1, duration: 1.4, ease: "easeOut" }}
-                    className="h-full rounded-full bg-gradient-to-r from-ember to-primary"
+                    className="h-full rounded-full bg-primary shadow-glow-roc"
                   />
                 </div>
                 <p className="relative mt-3 text-xs text-muted-foreground">
@@ -224,9 +256,70 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Categories marquee */}
-      <section className="border-y border-border/50 bg-card/40 py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4">
+      {/* Voting system */}
+      <section id="voting" className="border-y border-border/50 bg-card/40 py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4 border-primary/40 text-primary">
+              <Scale className="mr-1.5 size-3.5" />
+              The voting system
+            </Badge>
+            <h2 className="font-display text-4xl font-bold tracking-tight">
+              Two voices, <span className="text-gradient-roc">one verdict</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Fans and industry professionals each get a say. The combined
+              weighted score decides who advances — and who takes the crown.
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              {
+                icon: Users,
+                title: "Public Voting",
+                weight: "40%",
+                body: "Fans vote with credits for the performers they believe in. Real support, real stakes.",
+              },
+              {
+                icon: Gavel,
+                title: "Professional Judges",
+                weight: "60%",
+                body: "Industry judges score every entry on craft, stage presence and star potential.",
+              },
+              {
+                icon: Trophy,
+                title: "Combined Score",
+                weight: "100%",
+                body: "The weighted blend produces one transparent leaderboard for every contest.",
+              },
+            ].map((v, i) => (
+              <motion.div
+                key={v.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+                className={`card-spot rounded-2xl p-6 ${i === 2 ? "border-primary/40 shadow-glow-roc" : ""}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                    <v.icon className="size-5" />
+                  </div>
+                  <span className={`font-display text-2xl font-bold ${i === 2 ? "text-gradient-roc" : "text-silver"}`}>
+                    {v.weight}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-display text-lg font-semibold">{v.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{v.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="border-b border-border/50 bg-card/30 py-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-7 gap-y-3 px-4">
           {categories.map((c) => (
             <span key={c.name} className="flex items-center gap-2 text-sm text-muted-foreground">
               <c.icon className="size-4 text-primary" />
@@ -241,7 +334,7 @@ export default function Landing() {
         <div className="mx-auto mb-14 max-w-2xl text-center">
           <Badge variant="outline" className="mb-4 border-primary/40 text-primary">The platform</Badge>
           <h2 className="font-display text-4xl font-bold tracking-tight">
-            A professional stage, <span className="text-gradient-gold">in your pocket</span>
+            A professional stage, <span className="text-gradient-roc">in your pocket</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
             Everything a modern talent contest demands — from first audition to
@@ -274,7 +367,7 @@ export default function Landing() {
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <Badge variant="outline" className="mb-4 border-primary/40 text-primary">The path</Badge>
             <h2 className="font-display text-4xl font-bold tracking-tight">
-              Four steps to <span className="text-gradient-gold">the crown</span>
+              Four steps to <span className="text-gradient-roc">the crown</span>
             </h2>
           </div>
           <div className="grid gap-6 md:grid-cols-4">
@@ -300,24 +393,23 @@ export default function Landing() {
       <section id="live" className="mx-auto max-w-6xl px-4 py-24">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <Badge variant="outline" className="mb-4 border-rose/50 text-rose">
+            <Badge variant="outline" className="mb-4 border-primary/50 text-primary">
               <Radio className="mr-1.5 size-3.5" />
               Live
             </Badge>
             <h2 className="font-display text-4xl font-bold tracking-tight">
-              Finals that feel like <span className="text-gradient-gold">prime time</span>
+              Finals that feel like <span className="text-gradient-roc">prime time</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Contest finalists broadcast to their audience with live chat and
-              real-time reactions, while credit voting decides the winner as
-              everyone watches. Followers are notified the moment a show
-              begins.
+              Contest finalists broadcast live with chat and real-time
+              reactions, while credit voting decides the winner as everyone
+              watches. Followers are notified the moment a show begins.
             </p>
             <ul className="mt-6 space-y-3 text-sm">
               {[
-                "Real-time chat with your fanbase",
+                "Artist live sessions and live competitions",
+                "Real-time chat and judge commentary",
                 "Credit-based live voting with instant tallies",
-                "Automatic follower notifications",
               ].map((t) => (
                 <li key={t} className="flex items-center gap-2.5">
                   <span className="flex size-5 items-center justify-center rounded-full bg-primary/15 text-primary">
@@ -329,7 +421,7 @@ export default function Landing() {
             </ul>
             <Button asChild className="mt-8 font-semibold">
               <Link to="/auth?returnTo=%2Flive">
-                Go live with vStarz
+                Go live with VStarz
                 <ChevronRight className="size-4" />
               </Link>
             </Button>
@@ -337,8 +429,8 @@ export default function Landing() {
           <div className="card-spot rounded-3xl p-6">
             <div className="mb-4 flex items-center gap-2">
               <span className="relative flex size-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose opacity-60" />
-                <span className="relative inline-flex size-3 rounded-full bg-rose" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                <span className="relative inline-flex size-3 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-semibold">LIVE · Finals Night</span>
               <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
@@ -347,16 +439,16 @@ export default function Landing() {
             </div>
             <div className="relative aspect-video overflow-hidden rounded-xl bg-gradient-to-br from-accent via-card to-background">
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-glow-gold">
+                <div className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-glow-roc">
                   <Play className="size-6 fill-current" />
                 </div>
               </div>
             </div>
             <div className="mt-4 space-y-2">
               {[
-                { who: "Maya", text: "NO WAY that high note 😭" },
+                { who: "Lerato", text: "NO WAY that high note 😭" },
                 { who: "J4ZZ", text: "10 credits on Nova, let's go" },
-                { who: "Tariq", text: "chat we are witnessing history" },
+                { who: "Sipho", text: "chat, we are witnessing history" },
               ].map((m) => (
                 <div key={m.who} className="rounded-lg bg-secondary/60 px-3 py-2 text-sm">
                   <span className="font-semibold text-primary">{m.who}</span>{" "}
@@ -368,18 +460,18 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing teaser */}
+      {/* Pricing */}
       <section id="pricing" className="border-t border-border/50 bg-card/30 py-24">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mx-auto mb-14 max-w-2xl text-center">
-            <Badge variant="outline" className="mb-4 border-primary/40 text-primary">Membership</Badge>
+            <Badge variant="outline" className="mb-4 border-primary/40 text-primary">Voting & membership</Badge>
             <h2 className="font-display text-4xl font-bold tracking-tight">
-              Credits, crowns &amp; <span className="text-gradient-gold">featured wins</span>
+              Credits, crowns &amp; <span className="text-gradient-roc">featured wins</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
               Voting credits give every supporter a real stake in the outcome.
-              Premium members receive monthly credit allowances and featured
-              placement throughout the contest.
+              VStarz Gold unlocks the full experience for members who mean
+              business.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2">
@@ -389,35 +481,49 @@ export default function Landing() {
                 <h3 className="font-display text-xl font-semibold">Voting Credits</h3>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                Packs start at $4.99. Larger packs offer better value per
-                credit.
+                One credit, one competition vote. Larger packs carry more
+                weight for less.
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-                {["50 credits — $4.99", "150 credits — $11.99", "500 credits — $34.99", "1,500 credits — $89.99"].map((p) => (
-                  <div key={p} className="rounded-lg border border-border/60 bg-secondary/40 px-3 py-2">{p}</div>
+                {creditPacks.map((p) => (
+                  <div
+                    key={p.credits}
+                    className="flex items-center justify-between rounded-lg border border-border/60 bg-secondary/40 px-3 py-2"
+                  >
+                    <span>{p.credits}</span>
+                    <span className="font-mont font-bold text-silver">{p.price}</span>
+                  </div>
                 ))}
               </div>
             </div>
-            <div className="card-spot relative overflow-hidden rounded-3xl p-8">
+            <div className="card-spot relative overflow-hidden rounded-3xl border-primary/40 p-8">
               <div className="absolute right-4 top-4">
-                <Badge className="bg-primary text-primary-foreground">Popular</Badge>
+                <Badge className="badge-gold">Most popular</Badge>
               </div>
               <div className="flex items-center gap-2 text-primary">
                 <Crown className="size-5" />
-                <h3 className="font-display text-xl font-semibold">Premium</h3>
+                <h3 className="font-display text-xl font-semibold">VStarz Gold</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">
-                From $7.99 per month. Monthly credits, early access, and the
-                premium badge.
+              <p className="mt-3">
+                <span className="font-display text-3xl font-bold text-gradient-roc">R79</span>
+                <span className="text-sm text-muted-foreground"> / month</span>
               </p>
               <ul className="mt-5 space-y-2 text-sm">
-                {["500–1,500 bonus credits monthly", "Early competition access", "Featured leaderboard placement", "Priority audition review"].map((p) => (
+                {[
+                  "Unlimited voting power",
+                  "Exclusive Gold-only content",
+                  "Early access to competitions",
+                  "Monthly bonus voting credits",
+                ].map((p) => (
                   <li key={p} className="flex items-center gap-2">
                     <Star className="size-3.5 fill-current text-primary" />
                     {p}
                   </li>
                 ))}
               </ul>
+              <Button asChild className="mt-6 w-full font-semibold shadow-glow-roc">
+                <Link to="/auth?returnTo=%2Fboost">Go Gold</Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -428,18 +534,18 @@ export default function Landing() {
         <div className="absolute inset-0 bg-stage-grid opacity-40" />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
           <h2 className="font-display text-4xl font-bold sm:text-5xl">
-            Your audience is <span className="text-gradient-gold">waiting</span>
+            Your audience is <span className="text-gradient-roc">waiting</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
             Join the performers and supporters already competing this season.
             Create your free account and post your first audition in minutes.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-12 px-8 font-semibold shadow-glow-gold">
+            <Button asChild size="lg" className="h-12 px-8 font-semibold shadow-glow-roc">
               <Link to="/auth?returnTo=%2Fdashboard">Create your account</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-8">
-              <Link to="/dashboard">Explore the contest</Link>
+              <Link to="/auth?returnTo=%2Fcompetitions">Explore the contest</Link>
             </Button>
           </div>
         </div>
@@ -451,12 +557,17 @@ export default function Landing() {
             <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Star className="size-3.5 fill-current" />
             </div>
-            <span className="font-display font-bold text-gradient-gold">vStarz</span>
+            <div className="leading-none">
+              <span className="font-display font-bold">VStarz™</span>
+              <span className="block text-[9px] uppercase tracking-[0.18em]">
+                Powered by Roc Nation Africa
+              </span>
+            </div>
           </div>
-          <p>© 2026 vStarz App. The world's first digital mobile talent contest.</p>
+          <p>© 2026 VStarz™ · Africa's Digital Talent Revolution</p>
           <div className="flex gap-5">
             <a href="#features" className="hover:text-foreground">Features</a>
-            <a href="#pricing" className="hover:text-foreground">Premium</a>
+            <a href="#pricing" className="hover:text-foreground">Pricing</a>
             <Link to="/auth" className="hover:text-foreground">Sign in</Link>
           </div>
         </div>

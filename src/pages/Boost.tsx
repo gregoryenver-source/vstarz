@@ -34,7 +34,7 @@ export default function Boost() {
 
   const [busy, setBusy] = useState<string | null>(null);
 
-  const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+  const zar = (cents: number) => `R${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 
   const handlePurchase = async (kind: "credits" | "premium", id: string) => {
     setBusy(id);
@@ -74,7 +74,7 @@ export default function Boost() {
     <AppShell>
       {/* Current standing */}
       <div className="card-spot mb-8 flex flex-col items-start gap-4 rounded-3xl p-6 sm:flex-row sm:items-center sm:p-8">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-glow-gold">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-glow-roc">
           <Coins className="size-7" />
         </div>
         <div className="flex-1">
@@ -90,11 +90,11 @@ export default function Boost() {
       <div className="mb-10">
         <div className="mb-5 flex items-center gap-2">
           <Crown className="size-5 text-primary" />
-          <h2 className="font-display text-2xl font-bold">Premium membership</h2>
+          <h2 className="font-display text-2xl font-bold">VStarz Gold membership</h2>
           {plan !== "free" && (
-            <Badge className="border border-primary/40 bg-primary/15 text-primary">
-              <Zap className="mr-1 size-3" />
-              You're {plan === "premium_pro" ? "Premium Pro" : "Premium"}
+            <Badge className="badge-gold">
+              <Crown className="mr-1 size-3" />
+              You're Gold
             </Badge>
           )}
         </div>
@@ -104,17 +104,15 @@ export default function Boost() {
             return (
               <div
                 key={p.id}
-                className={`card-spot relative flex flex-col rounded-2xl p-6 ${p.id === "premium_pro" ? "border-primary/40" : ""}`}
+                className={`card-spot relative flex flex-col rounded-2xl border-primary/40 p-6`}
               >
-                {p.id === "premium_pro" && (
-                  <Badge className="absolute right-4 top-4 bg-primary text-primary-foreground">
-                    <Star className="mr-1 size-3 fill-current" /> Best value
-                  </Badge>
-                )}
+                <Badge className="badge-gold absolute right-4 top-4">
+                  <Star className="mr-1 size-3 fill-current" /> Exclusive tier
+                </Badge>
                 <h3 className="font-display text-xl font-semibold">{p.label}</h3>
                 <p className="mt-2">
-                  <span className="font-display text-3xl font-bold">{usd(p.priceCents)}</span>
-                  <span className="text-muted-foreground">/mo</span>
+                  <span className="font-display text-3xl font-bold text-gradient-roc">{zar(p.priceCents)}</span>
+                  <span className="text-muted-foreground">/month</span>
                 </p>
                 <ul className="mt-4 flex-1 space-y-2.5 text-sm">
                   {p.perks.map((perk) => (
@@ -127,7 +125,7 @@ export default function Boost() {
                 <Button
                   onClick={() => handlePurchase("premium", p.id)}
                   disabled={busy !== null || isCurrent}
-                  className={`mt-6 font-semibold ${p.id === "premium_pro" ? "shadow-glow-gold" : ""}`}
+                  className="mt-6 font-semibold shadow-glow-roc"
                   variant={isCurrent ? "outline" : "default"}
                 >
                   {busy === p.id ? (
@@ -157,10 +155,10 @@ export default function Boost() {
           {(catalog?.creditPacks ?? []).map((pack) => (
             <div key={pack.id} className="card-spot flex flex-col rounded-2xl p-5">
               <p className="text-sm text-muted-foreground">{pack.label}</p>
-              <p className="mt-1 font-display text-2xl font-bold text-gradient-gold">
+              <p className="mt-1 font-display text-2xl font-bold text-gradient-roc">
                 {pack.credits.toLocaleString()}
               </p>
-              <p className="text-sm text-muted-foreground">credits</p>
+              <p className="text-sm text-muted-foreground">voting credits</p>
               <Button
                 onClick={() => handlePurchase("credits", pack.id)}
                 disabled={busy !== null}
@@ -172,7 +170,7 @@ export default function Boost() {
                 ) : (
                   <Sparkles className="mr-2 size-4 text-primary" />
                 )}
-                {usd(pack.priceCents)}
+                {zar(pack.priceCents)}
               </Button>
             </div>
           ))}
@@ -198,11 +196,11 @@ export default function Boost() {
                   {t.kind === "credit_purchase"
                     ? `Credit pack (+${t.credits})`
                     : t.kind === "premium_subscription"
-                      ? "Premium subscription"
+                      ? "VStarz Gold"
                       : "Votes cast"}
                 </span>
                 <span className="text-muted-foreground">
-                  {t.amountCents > 0 ? usd(t.amountCents) : "—"}
+                  {t.amountCents > 0 ? zar(t.amountCents) : "—"}
                 </span>
                 <Badge
                   variant="outline"
@@ -223,10 +221,11 @@ export default function Boost() {
       </div>
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Payments are processed securely through Stripe. Connect your Stripe
-        keys in the project's Keys tab to enable live checkout; until then,
-        purchases complete in test mode. In-app purchases for iOS and Android
-        will arrive with the vStarz mobile apps.
+        Payments are processed securely in South African Rand through Stripe.
+        Connect your Stripe keys in the project's Keys tab to enable live
+        checkout; until then, purchases complete in test mode. In-app
+        purchases for iOS and Android will arrive with the VStarz mobile
+        apps.
       </p>
     </AppShell>
   );

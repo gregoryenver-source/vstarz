@@ -112,13 +112,18 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       <div className="pointer-events-none absolute inset-0 bg-stage-grid opacity-40" />
       <div className="flex-1 flex items-center justify-center p-4 relative">
         <div className="w-full max-w-md">
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-glow-gold">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-glow-roc">
               <Star className="size-5 fill-current" />
             </div>
-            <span className="font-display text-3xl font-bold text-gradient-gold">
-              vStarz
-            </span>
+            <div className="leading-none">
+              <span className="font-display text-3xl font-bold">
+                VStarz
+              </span>
+              <span className="block font-mont text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Powered by Roc Nation Africa
+              </span>
+            </div>
           </div>
 
           <Card className="card-spot shadow-2xl">
@@ -126,7 +131,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               <>
                 <CardHeader className="text-center">
                   <CardTitle className="font-display text-2xl">
-                    Sign in to the stage
+                    Step onto the stage
                   </CardTitle>
                   <CardDescription>
                     Enter your email to sign in or create your account — new
@@ -289,7 +294,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             )}
 
             <div className="py-4 px-6 text-xs text-center text-muted-foreground border-t border-border/60 rounded-b-lg">
-              New to vStarz App? Creating an account takes under a minute.{" "}
+              New to VStarz? Creating an account takes under a minute.{" "}
               <Link
                 to="/"
                 className="underline hover:text-primary transition-colors"

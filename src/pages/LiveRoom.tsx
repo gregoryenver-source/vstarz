@@ -172,7 +172,7 @@ export default function LiveRoom() {
                 </div>
               )}
               {live && (
-                <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-rose/90 px-2.5 py-1 text-xs font-bold text-white">
+                <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-primary/90 px-2.5 py-1 text-xs font-bold text-white">
                   <span className="size-1.5 animate-pulse rounded-full bg-white" />
                   LIVE
                 </div>
@@ -238,7 +238,7 @@ export default function LiveRoom() {
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-background">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-ember to-primary transition-all duration-500"
+                          className="h-full rounded-full bg-primary transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -275,7 +275,7 @@ export default function LiveRoom() {
               <div className="ml-auto flex gap-2">
                 {room.status === "scheduled" && (
                   <Button onClick={handleGoLive} disabled={busyHost} className="font-semibold">
-                    {busyHost ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Circle className="mr-2 size-4 fill-rose text-rose" />}
+                    {busyHost ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Circle className="mr-2 size-4 fill-primary text-primary" />}
                     Go live
                   </Button>
                 )}

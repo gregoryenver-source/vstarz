@@ -194,7 +194,7 @@ export default function CompetitionDetail() {
           {submissionsAllowed && !alreadySubmitted && (
             <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
               <DialogTrigger asChild>
-                <Button className="font-semibold shadow-glow-gold">
+                <Button className="font-semibold shadow-glow-roc">
                   <Upload className="size-4" />
                   Submit your audition
                 </Button>
@@ -417,7 +417,7 @@ export default function CompetitionDetail() {
               {entries.slice(0, 3).map((e, i) => (
                 <div
                   key={e._id}
-                  className={`card-spot rounded-2xl p-6 text-center ${i === 0 ? "border-primary/50 shadow-glow-gold" : ""}`}
+                  className={`card-spot rounded-2xl p-6 text-center ${i === 0 ? "border-primary/50 shadow-glow-roc" : ""}`}
                 >
                   <Medal className={`mx-auto mb-3 size-8 ${["text-primary", "text-muted-foreground", "text-amber-700"][i]}`} />
                   <p className="font-display text-lg font-bold">#{i + 1}</p>

@@ -77,7 +77,7 @@ export const complete = mutation({
       await ctx.db.patch(userId, {
         plan: "gold",
         planExpiresAt: expiresAt,
-        votingCredits: (user.votingCredits ?? 0) + 500,
+        votingCredits: (user.votingCredits ?? 0) + 100,
       });
     }
 
@@ -92,11 +92,11 @@ export const complete = mutation({
       title:
         tx.kind === "credit_purchase"
           ? `+${tx.credits} voting credits added`
-          : "Premium activated!",
+          : "VStarz Gold activated!",
       body:
         tx.kind === "credit_purchase"
           ? "Your credits are ready to use."
-          : "Enjoy your premium perks and monthly credits.",
+          : "Unlimited voting, exclusive content, and early access are now unlocked.",
       link: "/boost",
       createdAt: now,
     });

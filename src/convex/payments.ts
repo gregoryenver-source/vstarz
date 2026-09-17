@@ -13,34 +13,24 @@ async function requireUser(ctx: QueryCtx) {
 }
 
 // Catalog: credits packs and premium plans
+// Pricing in South African Rand (amounts stored in cents)
 export const CREDIT_PACKS = [
-  { id: "starter", credits: 50, priceCents: 499, label: "Starter" },
-  { id: "fan", credits: 150, priceCents: 1199, label: "Fan Favorite" },
-  { id: "superfan", credits: 500, priceCents: 3499, label: "Superfan" },
-  { id: "starpower", credits: 1500, priceCents: 8999, label: "Starpower" },
+  { id: "starter", credits: 10, priceCents: 1000, label: "Starter" },
+  { id: "supporter", credits: 50, priceCents: 4000, label: "Supporter" },
+  { id: "superfan", credits: 100, priceCents: 7500, label: "Superfan" },
+  { id: "starpower", credits: 500, priceCents: 29900, label: "Starpower" },
 ] as const;
 
 export const PREMIUM_PLANS = [
   {
-    id: "premium",
-    label: "Premium",
-    priceCents: 799,
+    id: "gold",
+    label: "VStarz Gold",
+    priceCents: 7900,
     perks: [
-      "500 bonus credits every month",
-      "Ad-free browsing",
-      "Exclusive premium badge",
+      "Unlimited voting power",
+      "Exclusive Gold-only content",
       "Early access to competitions",
-    ],
-  },
-  {
-    id: "premium_pro",
-    label: "Premium Pro",
-    priceCents: 1999,
-    perks: [
-      "1,500 bonus credits every month",
-      "Everything in Premium",
-      "Featured placement on the leaderboard",
-      "Priority audition review",
+      "Monthly bonus voting credits",
     ],
   },
 ] as const;
@@ -101,7 +91,7 @@ export const createCheckout = action({
           },
           body: JSON.stringify({
             amount: amountCents,
-            currency: "usd",
+            currency: "zar",
             description,
             success_url: `${process.env.CONVEX_SITE_URL}/dashboard?purchase=success`,
             cancel_url: `${process.env.CONVEX_SITE_URL}/boost?purchase=cancelled`,
