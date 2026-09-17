@@ -58,12 +58,13 @@ export const createDemoData = mutation({
   handler: async (ctx) => {
     const { userId } = await requireUser(ctx);
     const comps = await ctx.db.query("competitions").collect();
-    if (comps.length > 0) return { created: false };
+    const compsEmpty = comps.length === 0;
 
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
-    const openId = await ctx.db.insert("competitions", {
+    const openId = compsEmpty
+      ? await ctx.db.insert("competitions", {
       title: "Rising Starz: Season 1",
       description:
         "The flagship open-call of Season 1. Submit your audition video (30 seconds to 5 minutes), rally your fans, and let the 40% public vote and 60% judge score decide who takes the crown.",
@@ -74,8 +75,10 @@ export const createDemoData = mutation({
       submissionsOpenAt: now,
       endsAt: now + 21 * day,
       entryCount: 0,
-    });
+    })
+    : undefined;
 
+    if (compsEmpty) {
     await ctx.db.insert("competitions", {
       title: "Dance Floor Blitz",
       description:
@@ -100,6 +103,7 @@ export const createDemoData = mutation({
       endsAt: now - 3 * day,
       entryCount: 3,
     });
+    }
 
     // ── Merch + tickets + launch banner (independent of demo comps) ──
     const existingProducts = await ctx.db.query("merchProducts").collect();
@@ -207,12 +211,12 @@ export const createDemoData = mutation({
     const existingBanners = await ctx.db.query("banners").collect();
     if (existingBanners.length === 0) {
       await ctx.db.insert("banners", {
-        title: "Your brand on the V",
+        title: "Ignite the Stage",
         subtitle:
-          "Digital real estate on Africa's fastest-growing talent platform. Brand takeovers, competition sponsorship, and live-show placements.",
-        advertiser: "VStarz Partnerships",
-        ctaLabel: "Become a partner",
-        ctaUrl: "/network#partnerships",
+          "Ignition Group powers the next generation of African stars — sponsor of the VStarz Season 1 spotlight.",
+        advertiser: "Ignition Group",
+        ctaLabel: "Explore Ignition Group",
+        ctaUrl: "https://www.ignitiongroup.co.za",
         placement: "home_hero",
         active: true,
         weight: 10,
