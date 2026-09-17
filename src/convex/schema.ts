@@ -206,6 +206,13 @@ const schema = defineSchema(
       .index("by_entry", ["entryId"])
       .index("by_judge", ["judgeId"]),
 
+    entryComments: defineTable({
+      entryId: v.id("entries"),
+      userId: v.id("users"),
+      body: v.string(),
+      createdAt: v.number(),
+    }).index("by_entry", ["entryId", "createdAt"]),
+
     moderationFlags: defineTable({
       reporterId: v.id("users"),
       targetType: v.union(v.literal("entry"), v.literal("user"), v.literal("message")),

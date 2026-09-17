@@ -261,7 +261,8 @@ export default function LiveRoom() {
                 })}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                Every live vote costs 2 credits and updates the tally in real time.
+                Each live vote costs 2 credits. The tally updates in real time
+                for everyone watching.
               </p>
             </div>
           )}

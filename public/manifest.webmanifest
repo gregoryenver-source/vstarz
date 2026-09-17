@@ -1,11 +1,11 @@
 {
-  "name": "freebuff.com application",
-  "short_name": "freebuff.com",
-  "description": "freebuff.com application",
+  "name": "vStarz App — The World's First Digital Mobile Talent Contest",
+  "short_name": "vStarz",
+  "description": "The World's First Digital Mobile Talent Contest. Post your talent, grow your following, and compete for the crown.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#0d0b14",
+  "theme_color": "#0d0b14",
   "icons": [
     {
       "src": "/logo.png",

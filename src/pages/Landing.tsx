@@ -12,6 +12,14 @@ import {
   Vote,
   ChevronRight,
   Flame,
+  Mic,
+  Footprints,
+  Drama,
+  Wand2,
+  Guitar,
+  Clapperboard,
+  Zap,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,66 +30,66 @@ const features = [
   {
     icon: Video,
     title: "Video Auditions",
-    body: "Upload your audition once. Get discovered by fans and judges across every category.",
+    body: "Perform once, reach everyone. Upload your audition from any device and put your talent in front of judges and fans.",
   },
   {
     icon: Vote,
-    title: "Credit Voting",
-    body: "Fans spend voting credits to back their favorites. Real stakes, real rankings.",
+    title: "Credit-Based Voting",
+    body: "Every vote carries weight. Fans support their favorites with voting credits, so rankings reflect genuine enthusiasm.",
   },
   {
     icon: Radio,
-    title: "Live Rooms",
-    body: "Go live with your fanbase. Chat, react, and run live votes in the moment.",
+    title: "Live Show Nights",
+    body: "Broadcast to your audience in real time with live chat, reactions, and voting that decides winners as it happens.",
   },
   {
     icon: Trophy,
-    title: "Leaderboards",
-    body: "Climb the board week after week. Winners get featured across vStarz.",
+    title: "Leaderboards & Results",
+    body: "Transparent standings, updated instantly. Season champions earn featured placement across the platform.",
   },
   {
     icon: Heart,
-    title: "Fan Following",
-    body: "Build a following that gets notified the moment you post or go live.",
+    title: "A Following That Grows",
+    body: "Followers are notified the moment you post an audition or go live — your fanbase builds with every performance.",
   },
   {
     icon: Crown,
-    title: "Premium Perks",
-    body: "Monthly credits, early access, and featured placement for premium members.",
+    title: "Premium Membership",
+    body: "Monthly credit allowances, early access to new contests, and featured placement for members who mean business.",
   },
 ];
 
 const categories = [
-  { name: "Singing", icon: "🎤" },
-  { name: "Dancing", icon: "🕺" },
-  { name: "Comedy", icon: "🎭" },
-  { name: "Magic", icon: "🪄" },
-  { name: "Music", icon: "🎸" },
-  { name: "Acting", icon: "🎬" },
-  { name: "Acrobatics", icon: "🤸" },
-  { name: "More", icon: "✨" },
+  { name: "Singing", icon: Mic },
+  { name: "Dancing", icon: Footprints },
+  { name: "Comedy", icon: Drama },
+  { name: "Magic", icon: Wand2 },
+  { name: "Music", icon: Guitar },
+  { name: "Acting", icon: Clapperboard },
+  { name: "Acrobatics", icon: Zap },
+  { name: "More", icon: LayoutGrid },
 ];
 
 const steps = [
   {
     n: "01",
     title: "Create your profile",
-    body: "Pick your talent category and set up your public stage in under a minute.",
+    body: "Choose your talent categories and set up your public performer profile in under a minute.",
   },
   {
     n: "02",
-    title: "Submit your audition",
-    body: "Upload a video to an open competition. Our team reviews it fast.",
+    title: "Post your audition",
+    body: "Upload a video to an open contest. Our review team verifies every entry before it goes live.",
   },
   {
     n: "03",
-    title: "Rally your fans",
-    body: "Share your entry, go live, and turn supporters into votes.",
+    title: "Rally your audience",
+    body: "Share your entry, go live, and turn supporters into votes. Every credit moves you up the board.",
   },
   {
     n: "04",
     title: "Take the crown",
-    body: "Top the leaderboard, win featured showcases, and grow your stardom.",
+    body: "Finish on top and your win is featured across vStarz — the spotlight that keeps working for you.",
   },
 ];
 
@@ -129,15 +137,14 @@ export default function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-stage-grid opacity-50" />
-        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-24 text-center">
-          <motion.div
+        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-24 text-center">          <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
             className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary"
           >
             <Flame className="size-3.5" />
-            Season 1 open — auditions are live
+            Season 1 auditions are now open
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -145,8 +152,8 @@ export default function Landing() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="mx-auto max-w-3xl font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
           >
-            The stage is yours.
-            <span className="block text-gradient-gold">Talent deserves an arena.</span>
+            The world's first
+            <span className="block text-gradient-gold">digital talent contest</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -154,9 +161,9 @@ export default function Landing() {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
           >
-            vStarz is the talent competition platform where performers upload
-            auditions, fans vote with credits, and champions are crowned live.
-            Sing. Dance. Amaze. Get voted into the spotlight.
+            vStarz App is a premium talent contest built for mobile. Post your
+            audition video, build a following, and let the audience vote you
+            into the spotlight — entirely from your phone.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -167,13 +174,13 @@ export default function Landing() {
             <Button asChild size="lg" className="h-12 px-8 text-base font-semibold shadow-glow-gold">
               <Link to="/auth?returnTo=%2Fdashboard">
                 <Sparkles className="size-5" />
-                Start your audition
+                Post your audition
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
               <Link to="/dashboard">
                 <Play className="size-5" />
-                Explore competitions
+                Browse the catalog
               </Link>
             </Button>
           </motion.div>
@@ -222,7 +229,7 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4">
           {categories.map((c) => (
             <span key={c.name} className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-lg">{c.icon}</span>
+              <c.icon className="size-4 text-primary" />
               {c.name}
             </span>
           ))}
@@ -232,13 +239,13 @@ export default function Landing() {
       {/* Features */}
       <section id="features" className="mx-auto max-w-6xl px-4 py-24">
         <div className="mx-auto mb-14 max-w-2xl text-center">
-          <Badge variant="outline" className="mb-4 border-primary/40 text-primary">Everything you need</Badge>
+          <Badge variant="outline" className="mb-4 border-primary/40 text-primary">The platform</Badge>
           <h2 className="font-display text-4xl font-bold tracking-tight">
-            Built for the <span className="text-gradient-gold">performer economy</span>
+            A professional stage, <span className="text-gradient-gold">in your pocket</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            From first audition to grand final — vStarz handles the stage, the
-            fans, and the votes.
+            Everything a modern talent contest demands — from first audition to
+            grand final, handled end to end.
           </p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -267,7 +274,7 @@ export default function Landing() {
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <Badge variant="outline" className="mb-4 border-primary/40 text-primary">The path</Badge>
             <h2 className="font-display text-4xl font-bold tracking-tight">
-              Four steps to <span className="text-gradient-gold">stardom</span>
+              Four steps to <span className="text-gradient-gold">the crown</span>
             </h2>
           </div>
           <div className="grid gap-6 md:grid-cols-4">
@@ -298,12 +305,13 @@ export default function Landing() {
               Live
             </Badge>
             <h2 className="font-display text-4xl font-bold tracking-tight">
-              Show nights that feel like <span className="text-gradient-gold">prime time</span>
+              Finals that feel like <span className="text-gradient-gold">prime time</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Hosts open a live room, fans pour in with chat and reactions, and
-              live voting decides the winner while everyone watches. Followers
-              get pinged the second you go live.
+              Contest finalists broadcast to their audience with live chat and
+              real-time reactions, while credit voting decides the winner as
+              everyone watches. Followers are notified the moment a show
+              begins.
             </p>
             <ul className="mt-6 space-y-3 text-sm">
               {[
@@ -364,13 +372,14 @@ export default function Landing() {
       <section id="pricing" className="border-t border-border/50 bg-card/30 py-24">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mx-auto mb-14 max-w-2xl text-center">
-            <Badge variant="outline" className="mb-4 border-primary/40 text-primary">Monetization</Badge>
+            <Badge variant="outline" className="mb-4 border-primary/40 text-primary">Membership</Badge>
             <h2 className="font-display text-4xl font-bold tracking-tight">
-              Credits, crowns &amp; <span className="text-gradient-gold">cash prizes</span>
+              Credits, crowns &amp; <span className="text-gradient-gold">featured wins</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Fans buy voting credits. Talent keeps creating. Premium members
-              get monthly credit drops and featured placement.
+              Voting credits give every supporter a real stake in the outcome.
+              Premium members receive monthly credit allowances and featured
+              placement throughout the contest.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2">
@@ -380,7 +389,8 @@ export default function Landing() {
                 <h3 className="font-display text-xl font-semibold">Voting Credits</h3>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                Packs from $4.99. The bigger the pack, the more you save.
+                Packs start at $4.99. Larger packs offer better value per
+                credit.
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                 {["50 credits — $4.99", "150 credits — $11.99", "500 credits — $34.99", "1,500 credits — $89.99"].map((p) => (
@@ -397,7 +407,8 @@ export default function Landing() {
                 <h3 className="font-display text-xl font-semibold">Premium</h3>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                From $7.99/mo. Monthly credits, early access, and the gold badge.
+                From $7.99 per month. Monthly credits, early access, and the
+                premium badge.
               </p>
               <ul className="mt-5 space-y-2 text-sm">
                 {["500–1,500 bonus credits monthly", "Early competition access", "Featured leaderboard placement", "Priority audition review"].map((p) => (
@@ -420,15 +431,15 @@ export default function Landing() {
             Your audience is <span className="text-gradient-gold">waiting</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Join the performers and fans already on stage. Create your free
-            account and submit your first audition tonight.
+            Join the performers and supporters already competing this season.
+            Create your free account and post your first audition in minutes.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="h-12 px-8 font-semibold shadow-glow-gold">
-              <Link to="/auth?returnTo=%2Fdashboard">Create free account</Link>
+              <Link to="/auth?returnTo=%2Fdashboard">Create your account</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-8">
-              <Link to="/dashboard">Watch the competition</Link>
+              <Link to="/dashboard">Explore the contest</Link>
             </Button>
           </div>
         </div>
@@ -442,7 +453,7 @@ export default function Landing() {
             </div>
             <span className="font-display font-bold text-gradient-gold">vStarz</span>
           </div>
-          <p>© 2026 vStarz. The stage is yours.</p>
+          <p>© 2026 vStarz App. The world's first digital mobile talent contest.</p>
           <div className="flex gap-5">
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#pricing" className="hover:text-foreground">Premium</a>

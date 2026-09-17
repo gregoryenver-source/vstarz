@@ -3,8 +3,9 @@ import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, ChevronRight, Users, Video } from "lucide-react";
+import { Search, Trophy, ChevronRight, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
@@ -20,40 +21,67 @@ type Filter = "all" | "submissions_open" | "voting_open" | "closed";
 
 export default function Competitions() {
   const [filter, setFilter] = useState<Filter>("all");
+  const [search, setSearch] = useState("");
   const comps = useQuery(api.competitions.list, {}) ?? [];
 
-  const filtered = filter === "all" ? comps : comps.filter((c) => c.status === filter);
+  const q = search.trim().toLowerCase();
+  const filtered = comps.filter((c) => {
+    if (filter !== "all" && c.status !== filter) return false;
+    if (!q) return true;
+    return (
+      c.title.toLowerCase().includes(q) ||
+      c.description.toLowerCase().includes(q) ||
+      (c.categorySlug ?? "").toLowerCase().includes(q) ||
+      (c.prize ?? "").toLowerCase().includes(q)
+    );
+  });
 
   return (
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="font-display text-3xl font-bold">Competitions</h1>
+          <h1 className="font-display text-3xl font-bold">Contest catalog</h1>
           <p className="mt-1 text-muted-foreground">
-            Audition, vote, and crown the next vStarz champion.
+            Browse every contest, audition for the ones that fit, and back the
+            performers you believe in.
           </p>
         </div>
         <Button asChild className="font-semibold">
           <Link to="/competitions/new">
             <Trophy className="size-4" />
-            Host a competition
+            Host a contest
           </Link>
         </Button>
       </div>
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="mb-6">
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="submissions_open">Auditions open</TabsTrigger>
-          <TabsTrigger value="voting_open">Voting open</TabsTrigger>
-          <TabsTrigger value="closed">Ended</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="mb-6 space-y-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search the catalog — title, category, or prize…"
+            className="pl-9"
+          />
+        </div>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="submissions_open">Auditions open</TabsTrigger>
+            <TabsTrigger value="voting_open">Voting open</TabsTrigger>
+            <TabsTrigger value="closed">Ended</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       {filtered.length === 0 ? (
         <div className="card-spot rounded-3xl py-16 text-center">
           <Trophy className="mx-auto mb-3 size-10 text-muted-foreground" />
-          <p className="text-muted-foreground">No competitions in this tab yet.</p>
+          <p className="text-muted-foreground">
+            {search.trim()
+              ? `No competitions match "${search.trim()}". Try a different search.`
+              : "No competitions in this tab yet."}
+          </p>
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -85,8 +113,13 @@ export default function Competitions() {
                       <Users className="size-3.5" />
                       {c.entryCount ?? 0} entries
                     </span>
-                    {c.prize && <span className="truncate">🏆 {c.prize}</span>}
-                    <ChevronRight className="size-4 text-primary transition-transform group-hover:translate-x-0.5" />
+                    {c.prize && (
+                      <span className="flex min-w-0 items-center gap-1 truncate">
+                        <Trophy className="size-3.5 shrink-0 text-primary" />
+                        <span className="truncate">{c.prize}</span>
+                      </span>
+                    )}
+                    <ChevronRight className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>
               </Link>
@@ -100,13 +133,14 @@ export default function Competitions() {
           <Video className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">Ready to compete?</p>
+          <p className="font-semibold">Ready to take the stage?</p>
           <p className="text-sm text-muted-foreground">
-            Submit your audition video to any competition with auditions open.
+            Post your audition video to any contest currently accepting
+            entries.
           </p>
         </div>
         <Button asChild variant="outline" className="hidden sm:inline-flex">
-          <Link to="/competitions?submit=1">Submit audition</Link>
+          <Link to="/competitions?submit=1">Post an audition</Link>
         </Button>
       </div>
     </AppShell>

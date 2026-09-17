@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EntryComments } from "@/components/EntryComments";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import {
@@ -345,6 +346,9 @@ export default function CompetitionDetail() {
                             )}
                           </Button>
                         )}
+                      </div>
+                      <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                        <EntryComments entryId={e._id} entryTitle={e.title} />
                       </div>
                       {votesAllowed && maxVotes > 0 && (
                         <Progress value={(e.voteCount / maxVotes) * 100} className="h-1.5" />

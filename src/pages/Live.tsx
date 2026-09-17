@@ -53,9 +53,9 @@ export default function Live() {
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="font-display text-3xl font-bold">Live</h1>
+          <h1 className="font-display text-3xl font-bold">Live shows</h1>
           <p className="mt-1 text-muted-foreground">
-            Show nights, chat, and live voting — happening right now.
+            Real-time performances, chat, and live voting — happening now.
           </p>
         </div>
         {canHost && (
@@ -110,14 +110,14 @@ export default function Live() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose opacity-60" />
           <span className="relative inline-flex size-3 rounded-full bg-rose" />
         </span>
-        Live now
+        On air now
       </h2>
       {rooms.live.length === 0 ? (
         <div className="card-spot mb-10 rounded-3xl py-14 text-center">
           <Radio className="mx-auto mb-3 size-10 text-muted-foreground" />
-          <p className="font-semibold">Nothing live right now</p>
+          <p className="font-semibold">No shows are on air right now</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Follow your favorite talent to get notified the moment they go live.
+            Follow performers and you'll be notified the moment they go live.
           </p>
         </div>
       ) : (

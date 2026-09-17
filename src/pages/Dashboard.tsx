@@ -46,10 +46,10 @@ export default function Dashboard() {
   const spotlight = [...votingComps, ...openComps].slice(0, 3);
 
   const quick = [
-    { to: "/competitions", label: "Browse competitions", icon: Trophy },
-    { to: "/competitions?submit=1", label: "Submit an audition", icon: Video },
-    { to: "/live", label: "Watch live", icon: Radio },
-    { to: "/boost", label: "Get credits", icon: Coins },
+    { to: "/competitions", label: "Browse the catalog", icon: Trophy },
+    { to: "/competitions?submit=1", label: "Post an audition", icon: Video },
+    { to: "/live", label: "Watch live shows", icon: Radio },
+    { to: "/boost", label: "Get voting credits", icon: Coins },
   ];
 
   return (
@@ -60,29 +60,29 @@ export default function Dashboard() {
         <div className="relative">
           <Badge className="mb-4 border border-primary/30 bg-primary/10 text-primary" variant="outline">
             <Flame className="mr-1.5 size-3.5" />
-            Season 1 is live
+            Season 1 is underway
           </Badge>
           <h1 className="font-display text-3xl font-bold sm:text-4xl">
-            Welcome to the stage,{" "}
+            Welcome back,{" "}
             <span className="text-gradient-gold">
               {user?.name?.split(" ")[0] ?? user?.username ?? "Star"}
             </span>
           </h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Submit auditions, rally your fans, and climb the leaderboards. Your
-            spotlight starts here.
+            Post auditions, grow your following, and follow every contest from
+            your personal dashboard.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="font-semibold">
               <Link to="/competitions">
                 <Video className="size-4" />
-                Submit an audition
+                Post an audition
               </Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/live">
                 <Radio className="size-4" />
-                Watch live
+                Watch live shows
               </Link>
             </Button>
           </div>
@@ -109,7 +109,7 @@ export default function Dashboard() {
         {/* Competitions */}
         <div className="space-y-4 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold">Competitions</h2>
+            <h2 className="font-display text-xl font-bold">Featured contests</h2>
             <Button asChild variant="ghost" size="sm" className="text-primary">
               <Link to="/competitions">
                 View all <ArrowRight className="size-4" />
@@ -120,7 +120,7 @@ export default function Dashboard() {
           {comps.length === 0 ? (
             <Card className="card-spot">
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                No competitions yet — check back soon.
+                No contests yet — check back soon.
               </CardContent>
             </Card>
           ) : (
@@ -133,8 +133,9 @@ export default function Dashboard() {
                         {statusMeta[c.status]?.label ?? c.status}
                       </Badge>
                       {c.prize && (
-                        <span className="text-xs text-muted-foreground">
-                          🏆 {c.prize}
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Trophy className="size-3.5 text-primary" />
+                          {c.prize}
                         </span>
                       )}
                     </div>
@@ -160,8 +161,8 @@ export default function Dashboard() {
             <CardContent className="space-y-3">
               {live.live.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No rooms live right now. Follow talent to get notified when
-                  they go live.
+                  No shows are live right now. Follow performers to be notified
+                  the moment they go on air.
                 </p>
               ) : (
                 live.live.slice(0, 3).map((r) => (
@@ -197,8 +198,8 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <p>
-                Complete your talent profile so fans can find you in{" "}
-                <Link to="/profile" className="text-primary underline">your profile settings</Link>.
+                Complete your performer profile so the audience can find you —{" "}
+                <Link to="/profile" className="text-primary underline">update it here</Link>.
               </p>
               {!user?.isTalent && (
                 <Button asChild size="sm" variant="outline" className="w-full">
@@ -223,7 +224,7 @@ export default function Dashboard() {
                 </p>
               </div>
               <Button asChild size="sm" className="font-semibold">
-                <Link to="/boost">Boost</Link>
+                <Link to="/boost">Top up</Link>
               </Button>
             </CardContent>
           </Card>

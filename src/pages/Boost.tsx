@@ -82,7 +82,7 @@ export default function Boost() {
           <p className="font-display text-4xl font-bold">{credits.toLocaleString()} credits</p>
         </div>
         <div className="text-sm text-muted-foreground">
-          Votes cost 1 credit in competitions · 2 credits in live rooms
+          1 credit per competition vote · 2 credits per live vote
         </div>
       </div>
 
@@ -149,6 +149,10 @@ export default function Boost() {
           <Coins className="size-5 text-primary" />
           <h2 className="font-display text-2xl font-bold">Voting credit packs</h2>
         </div>
+        <p className="mb-4 max-w-2xl text-sm text-muted-foreground">
+          Credits are how supporters vote in contests and live shows. Every
+          vote you cast moves a performer up the leaderboard.
+        </p>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {(catalog?.creditPacks ?? []).map((pack) => (
             <div key={pack.id} className="card-spot flex flex-col rounded-2xl p-5">
@@ -183,7 +187,8 @@ export default function Boost() {
         </div>
         {txs.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No purchases yet. Grab a credit pack to start boosting your favorites.
+            No purchases yet. Credit packs let you support the performers you
+            want to see win.
           </p>
         ) : (
           <div className="card-spot divide-y divide-border/50 overflow-hidden rounded-2xl">
@@ -218,9 +223,10 @@ export default function Boost() {
       </div>
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Payments run through Stripe. Connect your Stripe keys in the project's
-        Keys tab to enable live checkout — until then purchases complete in
-        test mode. In-app purchases on iOS/Android arrive with the mobile apps.
+        Payments are processed securely through Stripe. Connect your Stripe
+        keys in the project's Keys tab to enable live checkout; until then,
+        purchases complete in test mode. In-app purchases for iOS and Android
+        will arrive with the vStarz mobile apps.
       </p>
     </AppShell>
   );

@@ -126,10 +126,11 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               <>
                 <CardHeader className="text-center">
                   <CardTitle className="font-display text-2xl">
-                    Step into the spotlight
+                    Sign in to the stage
                   </CardTitle>
                   <CardDescription>
-                    Enter your email to log in or create your account
+                    Enter your email to sign in or create your account — new
+                    members can post an audition in minutes.
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleEmailSubmit}>
@@ -288,7 +289,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             )}
 
             <div className="py-4 px-6 text-xs text-center text-muted-foreground border-t border-border/60 rounded-b-lg">
-              New to vStarz? Signing up takes seconds.{" "}
+              New to vStarz App? Creating an account takes under a minute.{" "}
               <Link
                 to="/"
                 className="underline hover:text-primary transition-colors"
