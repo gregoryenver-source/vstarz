@@ -5,7 +5,13 @@ import path from "path";
 import { defineConfig } from "vite";
 
 // https://vite.dev/config/
+//
+// Base path: the production deploy lives under judahcorporation.co.za/vstarz,
+// so builds for that host are made with VITE_APP_BASE=/vstarz/ (see
+// DEPLOYMENT.md). Freebuff preview builds use the default "/" and are
+// unaffected.
 export default defineConfig({
+  base: process.env.VITE_APP_BASE ?? "/",
   plugins: [react(), vlyPlugin(), tailwindcss()],
   resolve: {
     alias: {
