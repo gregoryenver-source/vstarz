@@ -35,13 +35,15 @@ Two options, both already wired up:
 ### Option A — Vercel (recommended, `vercel.json` included)
 
 ```bash
-bunx vercel
+bunx vercel --prod
 ```
 
-- Framework preset: **Vite**, output directory: `dist`
-- Build command: `VITE_APP_BASE=/vstarz/ bun run build`
-- `vercel.json` rewrites every `/vstarz/*` request to the SPA entry and sets
+- Everything is preconfigured in `vercel.json`: the build injects
+  `VITE_APP_BASE=/vstarz/` and the Convex URL, mirrors the output under
+  `dist/vstarz/` so every `/vstarz/...` path exists on disk, redirects the bare
+  upstream root to `/vstarz/`, rewrites deep links to the SPA entry, and sets
   immutable caching on hashed assets.
+- Only the Vercel CLI token (`VERCEL_TOKEN`) is needed — nothing else.
 
 The app will be live at `https://<project>.vercel.app/vstarz` — the proxy in
 step 3 points at it.
