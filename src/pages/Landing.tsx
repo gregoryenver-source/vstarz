@@ -624,9 +624,19 @@ export default function Landing() {
               </span>
             </div>
           </div>
-          <p>© 2026 VStarz™ · Africa's Digital Talent Revolution</p>
+          <p>
+            © 2026 Judah Corporation (Pty) Ltd · VStarz™ · Africa's Digital
+            Talent Revolution
+          </p>
           <div className="flex gap-5">
-            <a href="#features" className="hover:text-foreground">Features</a>
+            <a
+              href="https://www.judahcorporation.co.za"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              Judah Corporation
+            </a>
             <a href="#pricing" className="hover:text-foreground">Pricing</a>
             <Link to="/auth" className="hover:text-foreground">Sign in</Link>
           </div>

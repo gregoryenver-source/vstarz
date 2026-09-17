@@ -123,7 +123,9 @@ createRoot(document.getElementById("root")!).render(
         <VlyToolbar />
       </ToolbarErrorBoundary>
       <ConvexAuthProvider client={convex}>
-        <BrowserRouter>
+        {/* basename follows the deploy base so the app also works when
+            hosted under a subpath (e.g. judahcorporation.co.za/vstarz) */}
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
             <Routes>
