@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   Trophy,
   Radio,
@@ -118,6 +120,12 @@ const leaderboardRows = [
 
 export default function Landing() {
   const { isAuthenticated } = useAuth();
+
+  // Digital real estate — brand takeover slot
+  const heroBanners = useQuery(api.banners.getActiveBanners, { placement: "home_hero" }) ?? [];
+  const recordImpression = useMutation(api.banners.recordImpression);
+  const recordClick = useMutation(api.banners.recordClick);
+  const takeover = heroBanners[0] ?? null;
 
   return (
     <motion.div
@@ -258,6 +266,44 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Digital real estate — brand takeover banner */}
+      {takeover && (
+        <section className="relative overflow-hidden border-y border-primary/25 bg-gradient-to-r from-[#180000] via-[#3d0000] to-[#180000]">
+          <div className="absolute inset-0 bg-stage-grid opacity-20" />
+          <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-8 sm:flex-row sm:items-center">
+            <div
+              ref={(el) => {
+                if (el && !el.dataset.impressed) {
+                  el.dataset.impressed = "1";
+                  void recordImpression({ bannerId: takeover._id });
+                }
+              }}
+              className="min-w-0 flex-1"
+            >
+              <p className="font-mont text-[10px] font-bold uppercase tracking-[0.25em] text-primary/90">
+                Brand takeover · {takeover.advertiser}
+              </p>
+              <h3 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{takeover.title}</h3>
+              <p className="mt-1 max-w-2xl text-sm text-foreground/70">{takeover.subtitle}</p>
+            </div>
+            <Button
+              asChild
+              size="lg"
+              className="shrink-0 shadow-glow-roc"
+              onClick={() => recordClick({ bannerId: takeover._id })}
+            >
+              {takeover.ctaUrl.startsWith("/") ? (
+                <Link to={takeover.ctaUrl}>{takeover.ctaLabel}</Link>
+              ) : (
+                <a href={takeover.ctaUrl} target="_blank" rel="noreferrer">
+                  {takeover.ctaLabel}
+                </a>
+              )}
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* Spotlight leaderboard strip */}
       <section className="border-y border-border/50 bg-card/40 py-10">

@@ -32,6 +32,8 @@ import {
   Coins,
   Menu,
   Zap,
+  Store,
+  Network,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
@@ -41,6 +43,8 @@ const nav = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard },
   { to: "/competitions", label: "Competitions", icon: Trophy },
   { to: "/live", label: "Live", icon: Radio },
+  { to: "/network", label: "Network", icon: Network },
+  { to: "/store", label: "Store", icon: Store },
   { to: "/boost", label: "Boost", icon: Crown },
   { to: "/profile", label: "My Profile", icon: User },
 ];

@@ -195,6 +195,8 @@ const schema = defineSchema(
         v.literal("credit_purchase"),
         v.literal("premium_subscription"),
         v.literal("vote_spend"),
+        v.literal("merch_order"),
+        v.literal("event_ticket"),
       ),
       amountCents: v.number(),
       credits: v.optional(v.number()),
@@ -258,6 +260,164 @@ const schema = defineSchema(
       subscriptions: v.number(),
       creditSales: v.number(),
     }).index("by_month", ["month"]),
+
+    // ── Fan Clubs ────────────────────────────────────────────────────────
+    fanClubs: defineTable({
+      name: v.string(),
+      slug: v.string(),
+      artistId: v.id("users"),
+      description: v.string(),
+      tier: v.union(v.literal("free"), v.literal("gold")), // gold clubs require VStarz Gold
+      memberCount: v.number(),
+      createdAt: v.number(),
+    })
+      .index("by_slug", ["slug"])
+      .index("by_artist", ["artistId"]),
+
+    fanClubMembers: defineTable({
+      clubId: v.id("fanClubs"),
+      userId: v.id("users"),
+      joinedAt: v.number(),
+    })
+      .index("by_club", ["clubId"])
+      .index("by_club_user", ["clubId", "userId"])
+      .index("by_member", ["userId"]),
+
+    // ── Artist Verification ──────────────────────────────────────────────
+    verificationRequests: defineTable({
+      userId: v.id("users"),
+      stageName: v.string(),
+      categorySlug: v.string(),
+      evidenceUrl: v.string(), // press / streaming profile / social proof
+      statement: v.string(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("approved"),
+        v.literal("rejected"),
+      ),
+      reviewNote: v.optional(v.string()),
+      reviewedAt: v.optional(v.number()),
+      createdAt: v.number(),
+    })
+      .index("by_status", ["status"])
+      .index("by_user", ["userId"]),
+
+    // ── Merchandise Store ────────────────────────────────────────────────
+    merchProducts: defineTable({
+      name: v.string(),
+      slug: v.string(),
+      description: v.string(),
+      priceCents: v.number(),
+      emoji: v.optional(v.string()), // visual placeholder for MVP
+      kind: v.union(v.literal("merch"), v.literal("ticket")),
+      active: v.boolean(),
+      createdAt: v.number(),
+    })
+      .index("by_slug", ["slug"])
+      .index("by_kind", ["kind"]),
+
+    orders: defineTable({
+      userId: v.id("users"),
+      productId: v.id("merchProducts"),
+      productName: v.string(),
+      quantity: v.number(),
+      amountCents: v.number(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("paid"),
+        v.literal("fulfilled"),
+        v.literal("cancelled"),
+      ),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_status", ["status"]),
+
+    // ── Ticketing (live events) ──────────────────────────────────────────
+    events: defineTable({
+      title: v.string(),
+      description: v.string(),
+      venue: v.string(),
+      city: v.string(),
+      startsAt: v.number(),
+      priceCents: v.number(),
+      capacity: v.number(),
+      ticketsSold: v.number(),
+      productId: v.id("merchProducts"), // linked ticket product
+      createdAt: v.number(),
+    }).index("by_starts", ["startsAt"]),
+
+    // ── Roc Nation Africa Artist Network ─────────────────────────────────
+    networkPosts: defineTable({
+      authorId: v.id("users"),
+      kind: v.union(
+        v.literal("milestone"),
+        v.literal("opportunity"),
+        v.literal("announcement"),
+      ),
+      body: v.string(),
+      createdAt: v.number(),
+    }).index("by_created", ["createdAt"]),
+
+    // ── Digital Record Label Submissions ─────────────────────────────────
+    labelSubmissions: defineTable({
+      userId: v.id("users"),
+      artistName: v.string(),
+      categorySlug: v.string(),
+      links: v.string(), // streaming / social links
+      pitch: v.string(),
+      status: v.union(
+        v.literal("submitted"),
+        v.literal("in_review"),
+        v.literal("signed"),
+        v.literal("declined"),
+      ),
+      note: v.optional(v.string()),
+      createdAt: v.number(),
+    })
+      .index("by_status", ["status"])
+      .index("by_user", ["userId"]),
+
+    // ── Digital Real Estate (brand takeovers) ────────────────────────────
+    banners: defineTable({
+      title: v.string(),
+      subtitle: v.string(),
+      advertiser: v.string(),
+      ctaLabel: v.string(),
+      ctaUrl: v.string(), // internal route ("/network#partnerships") or external URL
+      placement: v.union(
+        v.literal("home_hero"),
+        v.literal("home_feed"),
+        v.literal("competitions"),
+        v.literal("live"),
+      ),
+      active: v.boolean(),
+      weight: v.number(), // higher weight wins when multiple are active
+      impressions: v.number(),
+      clicks: v.number(),
+      startsAt: v.optional(v.number()),
+      endsAt: v.optional(v.number()),
+      createdAt: v.number(),
+    })
+      .index("by_placement", ["placement"])
+      .index("by_active", ["active"]),
+
+    // ── AI engine output (Talent Radar, judge assistant, moderation) ─────
+    aiInsights: defineTable({
+      kind: v.union(
+        v.literal("talent_radar"),
+        v.literal("judge_assistant"),
+        v.literal("engagement"),
+        v.literal("trend"),
+      ),
+      competitionId: v.optional(v.id("competitions")),
+      entryId: v.optional(v.id("entries")),
+      userId: v.optional(v.id("users")), // insight targeted at a specific artist
+      title: v.string(),
+      body: v.string(),
+      score: v.optional(v.number()), // 0-100 composite
+      createdAt: v.number(),
+    }).index("by_kind", ["kind"]),
   },
   {
     schemaValidation: false,

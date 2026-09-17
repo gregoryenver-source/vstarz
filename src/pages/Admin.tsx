@@ -47,13 +47,18 @@ import {
   Ban,
   Video,
   Crown,
+  BadgeCheck,
+  ScrollText,
+  Megaphone,
+  Store,
+  Plus,
 } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 
 const zar = (cents: number) =>
-  `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  `R${(cents / 100).toLocaleString("en-ZA", { minimumFractionDigits: cents % 100 === 0 ? 0 : 2 })}`;
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
@@ -80,6 +85,48 @@ export default function Admin() {
   const [score, setScore] = useState("80");
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // ── Growth ops: verification, label, banners, store ──
+  const verifications = useQuery(api.network.listVerificationRequests, isAdmin ? {} : "skip") ?? [];
+  const labelQueue = useQuery(api.network.listLabelSubmissions, isAdmin ? {} : "skip") ?? [];
+  const bannerList = useQuery(api.banners.listAll, isAdmin ? {} : "skip") ?? [];
+  const storeProducts = useQuery(api.store.listProducts, isAdmin ? {} : "skip") ?? [];
+  const storeEvents = useQuery(api.store.listEvents, isAdmin ? {} : "skip") ?? [];
+
+  const reviewVerification = useMutation(api.network.reviewVerification);
+  const reviewLabel = useMutation(api.network.reviewLabelSubmission);
+  const createBanner = useMutation(api.banners.create);
+  const setBannerActive = useMutation(api.banners.setActive);
+  const createProduct = useMutation(api.store.createProduct);
+  const setProductActive = useMutation(api.store.setActive);
+  const createEvent = useMutation(api.store.createEvent);
+
+  const [vNote, setVNote] = useState("");
+  const [bannerForm, setBannerForm] = useState({
+    title: "",
+    subtitle: "",
+    advertiser: "",
+    ctaLabel: "Learn more",
+    ctaUrl: "https://",
+    placement: "home_hero" as "home_hero" | "home_feed" | "competitions" | "live",
+    weight: "10",
+  });
+  const [productForm, setProductForm] = useState({
+    name: "",
+    description: "",
+    priceRand: "",
+    emoji: "🛍️",
+    kind: "merch" as "merch" | "ticket",
+  });
+  const [eventForm, setEventForm] = useState({
+    title: "",
+    description: "",
+    venue: "",
+    city: "",
+    date: "",
+    priceRand: "",
+    capacity: "",
+  });
 
   if (isLoading) {
     return (
@@ -151,7 +198,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="revenue">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 flex flex-wrap">
           <TabsTrigger value="revenue">Revenue</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="competitions">Competitions</TabsTrigger>
@@ -161,6 +208,20 @@ export default function Admin() {
               <Badge className="ml-2 bg-primary/20 text-primary">{queue.length}</Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="verification">
+            Verification
+            {verifications.length > 0 && (
+              <Badge className="ml-2 bg-primary/20 text-primary">{verifications.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="label">
+            Label
+            {labelQueue.length > 0 && (
+              <Badge className="ml-2 bg-primary/20 text-primary">{labelQueue.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="banners">Banners</TabsTrigger>
+          <TabsTrigger value="store">Store</TabsTrigger>
         </TabsList>
 
         {/* Revenue */}
@@ -377,6 +438,407 @@ export default function Admin() {
               </div>
             ))
           )}
+        </TabsContent>
+
+        {/* Verification queue */}
+        <TabsContent value="verification" className="space-y-3">
+          {verifications.length === 0 ? (
+            <div className="card-spot rounded-3xl py-16 text-center">
+              <BadgeCheck className="mx-auto mb-3 size-10 text-primary" />
+              <p className="font-semibold">No pending verifications</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Artist verification requests will appear here for review.
+              </p>
+            </div>
+          ) : (
+            verifications.map((r) => (
+              <div key={r._id} className="card-spot space-y-3 rounded-2xl p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">
+                      {r.stageName}
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {r.categorySlug} · requested by {r.user?.name ?? r.user?.email ?? "unknown"}
+                      </span>
+                    </p>
+                    <a
+                      href={r.evidenceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-primary underline"
+                    >
+                      {r.evidenceUrl}
+                    </a>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="font-semibold"
+                    onClick={() =>
+                      reviewVerification({ requestId: r._id, approve: true, note: vNote || undefined })
+                        .then(() => toast.success(`${r.stageName} verified`))
+                        .catch((e) => toast.error(e.message))
+                    }
+                  >
+                    <Check className="mr-1.5 size-3.5" /> Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() =>
+                      reviewVerification({ requestId: r._id, approve: false, note: vNote || undefined })
+                        .then(() => toast.success("Request rejected"))
+                        .catch((e) => toast.error(e.message))
+                    }
+                  >
+                    <X className="mr-1.5 size-3.5" /> Reject
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">{r.statement}</p>
+              </div>
+            ))
+          )}
+          {verifications.length > 0 && (
+            <Input
+              placeholder="Optional review note attached to approve/reject…"
+              value={vNote}
+              onChange={(e) => setVNote(e.target.value)}
+            />
+          )}
+        </TabsContent>
+
+        {/* Label submissions */}
+        <TabsContent value="label" className="space-y-3">
+          {labelQueue.length === 0 ? (
+            <div className="card-spot rounded-3xl py-16 text-center">
+              <ScrollText className="mx-auto mb-3 size-10 text-primary" />
+              <p className="font-semibold">No submissions waiting</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Digital record label submissions from artists appear here.
+              </p>
+            </div>
+          ) : (
+            labelQueue.map((s) => (
+              <div key={s._id} className="card-spot space-y-3 rounded-2xl p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">
+                      {s.artistName}
+                      <span className="ml-2 text-xs text-muted-foreground">{s.categorySlug}</span>
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">{s.links}</p>
+                  </div>
+                  <Select
+                    onValueChange={(status) =>
+                      reviewLabel({
+                        submissionId: s._id,
+                        status: status as "in_review" | "signed" | "declined",
+                      })
+                        .then(() => toast.success("Submission updated"))
+                        .catch((e) => toast.error(e.message))
+                    }
+                  >
+                    <SelectTrigger className="h-8 w-40 text-xs">
+                      <SelectValue placeholder="Move to…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="in_review">In review</SelectItem>
+                      <SelectItem value="signed">Signed</SelectItem>
+                      <SelectItem value="declined">Declined</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <p className="text-sm text-muted-foreground">{s.pitch}</p>
+              </div>
+            ))
+          )}
+        </TabsContent>
+
+        {/* Digital real estate — banners */}
+        <TabsContent value="banners" className="space-y-6">
+          <div className="space-y-3">
+            {bannerList.map((b) => (
+              <div key={b._id} className="card-spot flex flex-wrap items-center gap-3 rounded-2xl p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{b.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {b.advertiser} · {b.placement} · weight {b.weight} · {b.impressions} impressions ·{" "}
+                    {b.clicks} clicks
+                  </p>
+                </div>
+                <Badge variant="outline" className={b.active ? "border-primary/40 text-primary" : "text-muted-foreground"}>
+                  {b.active ? "live" : "paused"}
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setBannerActive({ bannerId: b._id, active: !b.active })
+                      .then(() => toast.success(b.active ? "Banner paused" : "Banner live"))
+                      .catch((e) => toast.error(e.message))
+                  }
+                >
+                  {b.active ? "Pause" : "Activate"}
+                </Button>
+              </div>
+            ))}
+            {bannerList.length === 0 && (
+              <p className="card-spot rounded-2xl py-10 text-center text-sm text-muted-foreground">
+                No banners yet — sell the first digital real estate slot below.
+              </p>
+            )}
+          </div>
+
+          <div className="card-spot space-y-3 rounded-2xl p-4">
+            <p className="flex items-center gap-2 font-display text-lg font-bold">
+              <Megaphone className="size-4 text-primary" /> New brand takeover
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                placeholder="Headline — e.g. Your brand on the V"
+                value={bannerForm.title}
+                onChange={(e) => setBannerForm({ ...bannerForm, title: e.target.value })}
+              />
+              <Input
+                placeholder="Advertiser name"
+                value={bannerForm.advertiser}
+                onChange={(e) => setBannerForm({ ...bannerForm, advertiser: e.target.value })}
+              />
+              <Input
+                placeholder="Subtitle / offer line"
+                value={bannerForm.subtitle}
+                onChange={(e) => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
+                className="sm:col-span-2"
+              />
+              <Input
+                placeholder="CTA label"
+                value={bannerForm.ctaLabel}
+                onChange={(e) => setBannerForm({ ...bannerForm, ctaLabel: e.target.value })}
+              />
+              <Input
+                placeholder="CTA URL or /route"
+                value={bannerForm.ctaUrl}
+                onChange={(e) => setBannerForm({ ...bannerForm, ctaUrl: e.target.value })}
+              />
+              <Select
+                value={bannerForm.placement}
+                onValueChange={(v) => setBannerForm({ ...bannerForm, placement: v as typeof bannerForm.placement })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="home_hero">Home — hero takeover</SelectItem>
+                  <SelectItem value="home_feed">Home — feed slot</SelectItem>
+                  <SelectItem value="competitions">Competitions page</SelectItem>
+                  <SelectItem value="live">Live page</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="Weight (higher wins)"
+                inputMode="numeric"
+                value={bannerForm.weight}
+                onChange={(e) => setBannerForm({ ...bannerForm, weight: e.target.value })}
+              />
+            </div>
+            <Button
+              className="font-semibold"
+              onClick={() => {
+                if (!bannerForm.title || !bannerForm.advertiser || !bannerForm.subtitle) {
+                  toast.error("Headline, advertiser and subtitle are required");
+                  return;
+                }
+                createBanner({
+                  ...bannerForm,
+                  weight: parseInt(bannerForm.weight, 10) || 10,
+                })
+                  .then(() => {
+                    toast.success("Banner is live");
+                    setBannerForm({ ...bannerForm, title: "", subtitle: "", advertiser: "" });
+                  })
+                  .catch((e) => toast.error(e.message));
+              }}
+            >
+              <Plus className="mr-1.5 size-4" /> Launch banner
+            </Button>
+          </div>
+        </TabsContent>
+
+        {/* Store management */}
+        <TabsContent value="store" className="space-y-6">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="card-spot space-y-3 rounded-2xl p-4">
+              <p className="flex items-center gap-2 font-display text-lg font-bold">
+                <Store className="size-4 text-primary" /> New product
+              </p>
+              <Input
+                placeholder="Product name"
+                value={productForm.name}
+                onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+              />
+              <Input
+                placeholder="Description"
+                value={productForm.description}
+                onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+              />
+              <div className="grid grid-cols-3 gap-3">
+                <Input
+                  placeholder="Price (R)"
+                  inputMode="numeric"
+                  value={productForm.priceRand}
+                  onChange={(e) => setProductForm({ ...productForm, priceRand: e.target.value })}
+                />
+                <Input
+                  placeholder="Emoji"
+                  value={productForm.emoji}
+                  onChange={(e) => setProductForm({ ...productForm, emoji: e.target.value })}
+                />
+                <Select
+                  value={productForm.kind}
+                  onValueChange={(v) => setProductForm({ ...productForm, kind: v as "merch" | "ticket" })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="merch">Merch</SelectItem>
+                    <SelectItem value="ticket">Ticket</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                className="w-full font-semibold"
+                onClick={() => {
+                  const cents = Math.round(parseFloat(productForm.priceRand) * 100);
+                  if (!productForm.name || !productForm.description || !Number.isFinite(cents) || cents <= 0) {
+                    toast.error("Name, description and a valid price are required");
+                    return;
+                  }
+                  createProduct({
+                    name: productForm.name,
+                    description: productForm.description,
+                    priceCents: cents,
+                    emoji: productForm.emoji || undefined,
+                    kind: productForm.kind,
+                  })
+                    .then(() => {
+                      toast.success("Product added to the store");
+                      setProductForm({ ...productForm, name: "", description: "", priceRand: "" });
+                    })
+                    .catch((e) => toast.error(e.message));
+                }}
+              >
+                <Plus className="mr-1.5 size-4" /> Add product
+              </Button>
+            </div>
+
+            <div className="card-spot space-y-3 rounded-2xl p-4">
+              <p className="flex items-center gap-2 font-display text-lg font-bold">
+                <Radio className="size-4 text-primary" /> New event
+              </p>
+              <Input
+                placeholder="Event title"
+                value={eventForm.title}
+                onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+              />
+              <Input
+                placeholder="Description"
+                value={eventForm.description}
+                onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  placeholder="Venue"
+                  value={eventForm.venue}
+                  onChange={(e) => setEventForm({ ...eventForm, venue: e.target.value })}
+                />
+                <Input
+                  placeholder="City"
+                  value={eventForm.city}
+                  onChange={(e) => setEventForm({ ...eventForm, city: e.target.value })}
+                />
+                <Input
+                  type="date"
+                  value={eventForm.date}
+                  onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
+                />
+                <Input
+                  placeholder="Capacity"
+                  inputMode="numeric"
+                  value={eventForm.capacity}
+                  onChange={(e) => setEventForm({ ...eventForm, capacity: e.target.value })}
+                />
+                <Input
+                  placeholder="Ticket price (R)"
+                  inputMode="numeric"
+                  value={eventForm.priceRand}
+                  onChange={(e) => setEventForm({ ...eventForm, priceRand: e.target.value })}
+                  className="col-span-2"
+                />
+              </div>
+              <Button
+                className="w-full font-semibold"
+                onClick={() => {
+                  const cents = Math.round(parseFloat(eventForm.priceRand) * 100);
+                  const capacity = parseInt(eventForm.capacity, 10);
+                  const startsAt = eventForm.date ? new Date(eventForm.date).getTime() : NaN;
+                  if (
+                    !eventForm.title ||
+                    !eventForm.description ||
+                    !eventForm.venue ||
+                    !eventForm.city ||
+                    !Number.isFinite(cents) || cents <= 0 ||
+                    !Number.isFinite(capacity) || capacity <= 0 ||
+                    !Number.isFinite(startsAt)
+                  ) {
+                    toast.error("All fields with a valid price, capacity and date are required");
+                    return;
+                  }
+                  createEvent({
+                    title: eventForm.title,
+                    description: eventForm.description,
+                    venue: eventForm.venue,
+                    city: eventForm.city,
+                    startsAt,
+                    priceCents: cents,
+                    capacity,
+                  })
+                    .then(() => {
+                      toast.success("Event published with ticket sales live");
+                      setEventForm({ ...eventForm, title: "", description: "", venue: "", city: "", date: "", priceRand: "", capacity: "" });
+                    })
+                    .catch((e) => toast.error(e.message));
+                }}
+              >
+                <Plus className="mr-1.5 size-4" /> Publish event
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="font-mont text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Catalog · {storeProducts.length} products · {storeEvents.length} upcoming events
+            </p>
+            {storeProducts.map((p) => (
+              <div key={p._id} className="card-spot flex items-center gap-3 rounded-2xl p-3">
+                <span className="text-xl">{p.emoji ?? "🛍️"}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{p.name}</p>
+                  <p className="text-xs text-muted-foreground">{zar(p.priceCents)} · {p.kind}</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setProductActive({ productId: p._id, active: !p.active })
+                      .then(() => toast.success(p.active ? "Delisted" : "Listed"))
+                      .catch((e) => toast.error(e.message))
+                  }
+                >
+                  {p.active ? "Delist" : "List"}
+                </Button>
+              </div>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
 

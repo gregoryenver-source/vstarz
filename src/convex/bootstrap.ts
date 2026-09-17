@@ -101,6 +101,127 @@ export const createDemoData = mutation({
       entryCount: 3,
     });
 
+    // ── Merch + tickets + launch banner (independent of demo comps) ──
+    const existingProducts = await ctx.db.query("merchProducts").collect();
+    if (existingProducts.length === 0) {
+      await ctx.db.insert("merchProducts", {
+        name: "VStarz Signature Tee",
+        slug: "vstarz-signature-tee",
+        description:
+          "Heavyweight black tee with the red V emblem across the chest. Worn on stage by the Season 1 finalists.",
+        priceCents: 49900,
+        emoji: "👕",
+        kind: "merch",
+        active: true,
+        createdAt: now,
+      });
+      await ctx.db.insert("merchProducts", {
+        name: "ROC Cap",
+        slug: "roc-cap",
+        description:
+          "Structured snapback with ROC Red embroidery. Adjustable, one size fits all.",
+        priceCents: 34900,
+        emoji: "🧢",
+        kind: "merch",
+        active: true,
+        createdAt: now,
+      });
+      await ctx.db.insert("merchProducts", {
+        name: "Starz Live Poster (Limited)",
+        slug: "starz-live-poster",
+        description:
+          "Numbered A2 print of the Starz Live launch artwork. 200 printed, shipped rolled.",
+        priceCents: 24900,
+        emoji: "🖼️",
+        kind: "merch",
+        active: true,
+        createdAt: now,
+      });
+    }
+
+    const existingEvents = await ctx.db.query("events").collect();
+    if (existingEvents.length === 0) {
+      const teeSlug = "starz-live-johannesburg-ticket";
+      let productId = (
+        await ctx.db
+          .query("merchProducts")
+          .withIndex("by_slug", (q) => q.eq("slug", teeSlug))
+          .first()
+      )?._id;
+      productId ??= await ctx.db.insert("merchProducts", {
+        name: "Starz Live Johannesburg — Ticket",
+        slug: teeSlug,
+        description: "General admission to the Starz Live showcase at Constitution Hill.",
+        priceCents: 29900,
+        emoji: "🎟️",
+        kind: "ticket",
+        active: true,
+        createdAt: now,
+      });
+      await ctx.db.insert("events", {
+        title: "Starz Live: Johannesburg",
+        description:
+          "The first live VStarz showcase. Top 10 contestants perform for the crown, with surprise guests from the Roc Nation Africa network.",
+        venue: "Constitution Hill",
+        city: "Johannesburg",
+        startsAt: now + 30 * day,
+        priceCents: 29900,
+        capacity: 500,
+        ticketsSold: 0,
+        productId,
+        createdAt: now,
+      });
+
+      const cptSlug = "starz-live-cape-town-ticket";
+      let productIdCpt = (
+        await ctx.db
+          .query("merchProducts")
+          .withIndex("by_slug", (q) => q.eq("slug", cptSlug))
+          .first()
+      )?._id;
+      productIdCpt ??= await ctx.db.insert("merchProducts", {
+        name: "Starz Live Cape Town — Ticket",
+        slug: cptSlug,
+        description: "General admission to the Cape Town leg of the Starz Live tour.",
+        priceCents: 29900,
+        emoji: "🎟️",
+        kind: "ticket",
+        active: true,
+        createdAt: now,
+      });
+      await ctx.db.insert("events", {
+        title: "Starz Live: Cape Town",
+        description:
+          "Starz Live hits the Mother City. Live voting decides the season's wildcard finalist on the night.",
+        venue: "The Good Hope Hall",
+        city: "Cape Town",
+        startsAt: now + 44 * day,
+        priceCents: 29900,
+        capacity: 350,
+        ticketsSold: 0,
+        productId: productIdCpt,
+        createdAt: now,
+      });
+    }
+
+    const existingBanners = await ctx.db.query("banners").collect();
+    if (existingBanners.length === 0) {
+      await ctx.db.insert("banners", {
+        title: "Your brand on the V",
+        subtitle:
+          "Digital real estate on Africa's fastest-growing talent platform. Brand takeovers, competition sponsorship, and live-show placements.",
+        advertiser: "VStarz Partnerships",
+        ctaLabel: "Become a partner",
+        ctaUrl: "/network#partnerships",
+        placement: "home_hero",
+        active: true,
+        weight: 10,
+        impressions: 0,
+        clicks: 0,
+        createdAt: now,
+      });
+    }
+
     return { created: true, openId };
   },
 });

@@ -22,6 +22,8 @@ const LiveRoom = lazy(() => import("./pages/LiveRoom.tsx"));
 const Boost = lazy(() => import("./pages/Boost.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const Network = lazy(() => import("./pages/Network.tsx"));
+const Store = lazy(() => import("./pages/Store.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -195,6 +197,22 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth>
                     <LiveRoom />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/network"
+                element={
+                  <RequireAuth>
+                    <Network />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/store"
+                element={
+                  <RequireAuth>
+                    <Store />
                   </RequireAuth>
                 }
               />

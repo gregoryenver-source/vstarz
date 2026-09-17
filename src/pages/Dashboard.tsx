@@ -16,6 +16,7 @@ import {
   Users,
   Flame,
   Star,
+  Radar,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useEffect } from "react";
@@ -44,6 +45,9 @@ export default function Dashboard() {
   const openComps = comps.filter((c) => c.status === "submissions_open");
   const votingComps = comps.filter((c) => c.status === "voting_open");
   const spotlight = [...votingComps, ...openComps].slice(0, 3);
+
+  // AI Talent Radar — composite discovery scores across the platform
+  const radar = useQuery(api.ai.talentRadar, { limit: 4 }) ?? [];
 
   const quick = [
     { to: "/competitions", label: "Browse the catalog", icon: Trophy },
@@ -89,6 +93,60 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* AI Talent Radar */}
+      <Card className="card-spot mb-8 border-primary/25 overflow-hidden">
+        <CardHeader className="pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 font-display text-xl">
+              <Radar className="size-5 text-primary" />
+              AI Talent Radar
+            </CardTitle>
+            <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
+              <Sparkles className="mr-1 size-3" />
+              Composite: 40% public · 60% judges
+            </Badge>
+          </div>
+          <CardDescription>
+            The AI scans votes, judge scores and momentum across the platform to surface
+            rising talent — the same signals scouts and the label's A&amp;R team watch.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {radar.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              The radar is calibrating — it activates once auditions start collecting votes.
+            </p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {radar.map((t, i) => (
+                <Link
+                  key={t.userId}
+                  to={`/profile/${t.userId}`}
+                  className="group flex items-center gap-3 rounded-2xl border border-border/60 bg-secondary/40 p-3 transition-colors hover:border-primary/40"
+                >
+                  <span className="font-display text-2xl font-bold text-gradient-roc">#{i + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">
+                      {t.artist?.name ?? t.artist?.username ?? "Rising artist"}
+                      {t.artist?.badges?.includes("verified") && (
+                        <span className="ml-1 inline-block size-2 rounded-full bg-primary align-middle" />
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t.votes.toLocaleString()} votes · {t.momentum}% weekly momentum
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-display text-xl font-bold">{t.composite}</p>
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">score</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quick actions */}
       <div className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
