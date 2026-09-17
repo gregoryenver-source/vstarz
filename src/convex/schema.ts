@@ -5,12 +5,18 @@ import { Infer, v } from "convex/values";
 // default user roles. can add / remove based on the project as needed
 export const ROLES = {
   ADMIN: "admin",
+  JUDGE: "judge",
+  ARTIST: "artist",
+  FAN: "fan",
   USER: "user",
   MEMBER: "member",
 } as const;
 
 export const roleValidator = v.union(
   v.literal(ROLES.ADMIN),
+  v.literal(ROLES.JUDGE),
+  v.literal(ROLES.ARTIST),
+  v.literal(ROLES.FAN),
   v.literal(ROLES.USER),
   v.literal(ROLES.MEMBER),
 );
@@ -18,10 +24,24 @@ export type Role = Infer<typeof roleValidator>;
 
 export const planValidator = v.union(
   v.literal("free"),
-  v.literal("premium"),
-  v.literal("premium_pro"),
+  v.literal("gold"),
 );
 export type Plan = Infer<typeof planValidator>;
+
+// Audition video length options (seconds)
+export const DURATIONS = {
+  S30: 30,
+  S60: 60,
+  M3: 180,
+  M5: 300,
+} as const;
+
+export const durationValidator = v.union(
+  v.literal(30),
+  v.literal(60),
+ v.literal(180),
+  v.literal(300),
+);
 
 const schema = defineSchema(
   {
@@ -38,7 +58,7 @@ const schema = defineSchema(
 
       role: v.optional(roleValidator), // role of the user. do not remove
 
-      // vStarz profile fields
+      // VStarz profile fields
       username: v.optional(v.string()),
       bio: v.optional(v.string()),
       talents: v.optional(v.array(v.string())), // talent category slugs
@@ -51,9 +71,10 @@ const schema = defineSchema(
       ),
       isTalent: v.optional(v.boolean()),
       isBanned: v.optional(v.boolean()),
-      plan: v.optional(planValidator),
+      plan: v.optional(planValidator), // "free" | "gold" (VStarz Gold)
       planExpiresAt: v.optional(v.number()),
       votingCredits: v.optional(v.number()),
+      badges: v.optional(v.array(v.string())),
     })
       .index("email", ["email"]) // index for the email. do not remove or modify
       .index("username", ["username"])
@@ -93,6 +114,9 @@ const schema = defineSchema(
       endsAt: v.optional(v.number()),
       prize: v.optional(v.string()),
       entryCount: v.optional(v.number()),
+      // Weighted scoring configuration (defaults 40% public / 60% judges)
+      publicVoteWeight: v.optional(v.number()),
+      judgeScoreWeight: v.optional(v.number()),
     })
       .index("status", ["status"])
       .index("by_creator", ["createdBy"]),
@@ -105,6 +129,7 @@ const schema = defineSchema(
       videoUrl: v.string(), // uploaded via Convex storage
       thumbnailStorageId: v.optional(v.id("_storage")),
       videoStorageId: v.optional(v.id("_storage")),
+      durationSeconds: v.optional(v.number()), // 30 | 60 | 180 | 300
       status: v.union(
         v.literal("pending"),
         v.literal("approved"),

@@ -1,11 +1,11 @@
 {
-  "name": "vStarz App — The World's First Digital Mobile Talent Contest",
-  "short_name": "vStarz",
-  "description": "The World's First Digital Mobile Talent Contest. Post your talent, grow your following, and compete for the crown.",
+  "name": "VStarz™ — Africa's Digital Talent Revolution",
+  "short_name": "VStarz",
+  "description": "Powered by Roc Nation Africa. Audition, get scored by professional judges, and let the public vote crown the next star.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d0b14",
-  "theme_color": "#0d0b14",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "/logo.png",

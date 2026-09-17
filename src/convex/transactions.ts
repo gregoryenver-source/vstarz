@@ -72,13 +72,12 @@ export const complete = mutation({
     }
 
     if (tx.kind === "premium_subscription") {
-      const plan = tx.credits && tx.credits > 0 ? "premium_pro" : "premium";
+      // VStarz Gold — the platform's premium tier
       const expiresAt = now + 30 * 24 * 60 * 60 * 1000;
-      const monthlyCredits = plan === "premium_pro" ? 1500 : 500;
       await ctx.db.patch(userId, {
-        plan: plan,
+        plan: "gold",
         planExpiresAt: expiresAt,
-        votingCredits: (user.votingCredits ?? 0) + monthlyCredits,
+        votingCredits: (user.votingCredits ?? 0) + 500,
       });
     }
 
