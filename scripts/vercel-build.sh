@@ -11,7 +11,7 @@ bun run build
 
 cd dist
 mkdir -p vstarz
-for f in index.html assets logo.svg manifest.webmanifest favicon.ico robots.txt; do
+for f in index.html assets logo.svg manifest.webmanifest sw.js icons favicon.ico robots.txt; do
   [ -e "$f" ] && cp -R "$f" vstarz/
 done
 true

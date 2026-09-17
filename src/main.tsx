@@ -24,6 +24,7 @@ const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Network = lazy(() => import("./pages/Network.tsx"));
 const Store = lazy(() => import("./pages/Store.tsx"));
+const Download = lazy(() => import("./pages/Download.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -132,6 +133,7 @@ createRoot(document.getElementById("root")!).render(
           <Suspense fallback={<RouteLoading />}>
             <Routes>
               <Route path="/" element={<Landing />} />
+              <Route path="/download" element={<Download />} />
               <Route
                 path="/auth"
                 element={<AuthPage redirectAfterAuth="/dashboard" />}
@@ -241,3 +243,13 @@ createRoot(document.getElementById("root")!).render(
     </RootErrorBoundary>
   </StrictMode>,
 );
+
+// PWA: register the service worker in production builds only (base-aware so
+// it scopes correctly at / in preview and /vstarz/ in production).
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .catch(() => {});
+  });
+}

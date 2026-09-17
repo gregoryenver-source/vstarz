@@ -11,6 +11,7 @@ import {
   Users,
   Video,
   Vote,
+  Download,
   ChevronRight,
   Flame,
   Mic,
@@ -277,6 +278,12 @@ export default function Landing() {
                 <Link to="/auth?returnTo=%2Fcompetitions">
                   <Play className="size-5" />
                   Watch the talent
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="lg" className="h-12 px-6 text-sm text-muted-foreground">
+                <Link to="/download">
+                  <Download className="size-4" />
+                  Get the app — free
                 </Link>
               </Button>
             </motion.div>
