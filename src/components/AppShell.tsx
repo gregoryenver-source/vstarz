@@ -40,6 +40,7 @@ import {
   IdCard,
   ShieldCheck as ShieldCheckNav,
   BarChart3,
+  Smartphone,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
@@ -58,6 +59,7 @@ const nav = [
   { to: "/protection", label: "Protection Vault", icon: ShieldCheckNav },
   { to: "/sponsors", label: "Sponsor Intel", icon: BarChart3 },
   { to: "/profile", label: "My Profile", icon: User },
+  { to: "/download", label: "Get the App", icon: Smartphone },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -245,6 +247,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/boost")}>
                   <Zap className="mr-2 size-4" /> Boost & credits
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/download")}>
+                  <Smartphone className="mr-2 size-4" /> Get the app
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate("/admin")}>
