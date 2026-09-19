@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useMutation, useAction } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -25,8 +26,8 @@ interface Catalog {
 
 export default function Boost() {
   const { user } = useAuth();
-  const catalog = useQuery(api.payments.getCatalog, {}) as Catalog | undefined;
-  const txs = useQuery(api.payments.getMyTransactions, {}) ?? [];
+  const catalog = useSafeQuery(api.payments.getCatalog, {}) as Catalog | undefined;
+  const txs = useSafeQuery(api.payments.getMyTransactions, {}) ?? [];
 
   const createCheckout = useAction(api.payments.createCheckout);
   const completeTx = useMutation(api.transactions.complete);

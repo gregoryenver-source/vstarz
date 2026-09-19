@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { motion } from "framer-motion";
 import {
@@ -38,7 +38,7 @@ const stageIcons: Record<string, typeof Sparkles> = {
 };
 
 export default function Passport() {
-  const passport = useQuery(api.passport.myPassport, {});
+  const passport = useSafeQuery(api.passport.myPassport, {});
 
   return (
     <AppShell>

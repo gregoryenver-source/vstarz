@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,8 +35,8 @@ export default function Dashboard() {
 
   const seed = useMutation(api.bootstrap.seedAll);
   const demo = useMutation(api.bootstrap.createDemoData);
-  const comps = useQuery(api.competitions.list, {}) ?? [];
-  const live = useQuery(api.live.listLive, {}) ?? { live: [], scheduled: [] };
+  const comps = useSafeQuery(api.competitions.list, {}) ?? [];
+  const live = useSafeQuery(api.live.listLive, {}) ?? { live: [], scheduled: [] };
 
   useEffect(() => {
     // Seeding is best-effort: never let a backend error break page render.
@@ -48,7 +49,7 @@ export default function Dashboard() {
   const spotlight = [...votingComps, ...openComps].slice(0, 3);
 
   // AI Talent Radar — composite discovery scores across the platform
-  const radar = useQuery(api.ai.talentRadar, { limit: 4 }) ?? [];
+  const radar = useSafeQuery(api.ai.talentRadar, { limit: 4 }) ?? [];
 
   const quick = [
     { to: "/competitions", label: "Browse the catalog", icon: Trophy },

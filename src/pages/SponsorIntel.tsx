@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { motion } from "framer-motion";
 import {
@@ -84,13 +84,13 @@ type Campaign = {
 };
 
 export default function SponsorIntel() {
-  const kpis = useQuery(api.sponsor.platformKpis, {});
-  const campaigns = (useQuery(api.sponsor.campaignPerformance, {}) ?? []) as Campaign[];
-  const creators = (useQuery(api.sponsor.creatorLeaderboard, { limit: 8 }) ?? []) as Creator[];
+  const kpis = useSafeQuery(api.sponsor.platformKpis, {});
+  const campaigns = (useSafeQuery(api.sponsor.campaignPerformance, {}) ?? []) as Campaign[];
+  const creators = (useSafeQuery(api.sponsor.creatorLeaderboard, { limit: 8 }) ?? []) as Creator[];
   const trend =
-    useQuery(api.sponsor.audienceTrend, {}) ??
+    useSafeQuery(api.sponsor.audienceTrend, {}) ??
     [] as { label: string; auditions: number; interactions: number }[];
-  const appeal = useQuery(api.sponsor.mySponsorAppeal, {});
+  const appeal = useSafeQuery(api.sponsor.mySponsorAppeal, {});
 
   const kpiCards = kpis
     ? [

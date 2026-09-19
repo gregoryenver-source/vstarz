@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -28,12 +29,12 @@ export default function LiveRoom() {
   const { user } = useAuth();
   const roomId = id as Id<"liveRooms"> | undefined;
 
-  const room = useQuery(api.live.get, roomId ? { id: roomId } : "skip");
-  const chat = useQuery(
+  const room = useSafeQuery(api.live.get, roomId ? { id: roomId } : "skip");
+  const chat = useSafeQuery(
     api.live.listChat,
     roomId ? { roomId, limit: 60 } : "skip",
   ) ?? [];
-  const tally = useQuery(api.live.getLiveTally, roomId ? { roomId } : "skip") ?? {};
+  const tally = useSafeQuery(api.live.getLiveTally, roomId ? { roomId } : "skip") ?? {};
 
   const sendChat = useMutation(api.live.sendChat);
   const castVote = useMutation(api.live.castLiveVote);

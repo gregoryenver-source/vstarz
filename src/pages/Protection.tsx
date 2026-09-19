@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -224,7 +225,7 @@ function AddDialog({
 }
 
 export default function Protection() {
-  const vault = useQuery(api.protection.myVault, {});
+  const vault = useSafeQuery(api.protection.myVault, {});
   const registerWork = useMutation(api.protection.registerWork);
   const addContract = useMutation(api.protection.addContract);
   const addRoyalty = useMutation(api.protection.addRoyalty);

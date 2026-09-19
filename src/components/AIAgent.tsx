@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
@@ -26,7 +26,7 @@ const icons: Record<string, typeof Sparkles> = {
 
 /** The AI Talent Agent — signal-driven coaching on the Passport. */
 export function AIAgent() {
-  const coach = useQuery(api.ai.careerCoach, {});
+  const coach = useSafeQuery(api.ai.careerCoach, {});
 
   return (
     <section>

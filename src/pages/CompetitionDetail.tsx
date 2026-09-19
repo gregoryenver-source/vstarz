@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -53,9 +54,9 @@ export default function CompetitionDetail() {
   const { user } = useAuth();
   const compId = id as Id<"competitions"> | undefined;
 
-  const comp = useQuery(api.competitions.get, compId ? { id: compId } : "skip");
-  const entries = useQuery(api.entries.listByCompetition, compId ? { competitionId: compId } : "skip") ?? [];
-  const myVotes = useQuery(api.voting.getMyVotes, compId ? { competitionId: compId } : "skip") ?? [];
+  const comp = useSafeQuery(api.competitions.get, compId ? { id: compId } : "skip");
+  const entries = useSafeQuery(api.entries.listByCompetition, compId ? { competitionId: compId } : "skip") ?? [];
+  const myVotes = useSafeQuery(api.voting.getMyVotes, compId ? { competitionId: compId } : "skip") ?? [];
 
   const vote = useMutation(api.voting.vote);
   const generateUpload = useMutation(api.entries.generateVideoUploadUrl);

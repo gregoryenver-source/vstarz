@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
@@ -40,7 +40,7 @@ const daysAgo = (ts: number) => {
 };
 
 export function HottestAuditions() {
-  const hottest = (useQuery(api.entries.hottest, { limit: 9 }) ?? []) as HotEntry[];
+  const hottest = (useSafeQuery(api.entries.hottest, { limit: 9 }) ?? []) as HotEntry[];
   const [playing, setPlaying] = useState<HotEntry | null>(null);
 
   return (

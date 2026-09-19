@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,7 @@ type Filter = "all" | "submissions_open" | "voting_open" | "closed";
 export default function Competitions() {
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
-  const comps = useQuery(api.competitions.list, {}) ?? [];
+  const comps = useSafeQuery(api.competitions.list, {}) ?? [];
 
   const q = search.trim().toLowerCase();
   const filtered = comps.filter((c) => {

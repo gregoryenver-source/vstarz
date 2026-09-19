@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import {
   Trophy,
@@ -154,7 +155,7 @@ export default function Landing() {
   }, [seedDemo]);
 
   // Digital real estate — brand takeover slot
-  const heroBanners = useQuery(api.banners.getActiveBanners, { placement: "home_hero" }) ?? [];
+  const heroBanners = useSafeQuery(api.banners.getActiveBanners, { placement: "home_hero" }) ?? [];
   const recordImpression = useMutation(api.banners.recordImpression);
   const recordClick = useMutation(api.banners.recordClick);
   const takeover = heroBanners[0] ?? null;

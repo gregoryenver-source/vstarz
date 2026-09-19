@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -64,11 +65,11 @@ export default function Admin() {
   const { user, isLoading } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  const stats = useQuery(api.admin.platformStats, isAdmin ? {} : "skip");
-  const revenue = useQuery(api.admin.revenue, isAdmin ? {} : "skip");
-  const users = useQuery(api.admin.listUsers, isAdmin ? {} : "skip") ?? [];
-  const queue = useQuery(api.admin.moderationQueue, isAdmin ? {} : "skip") ?? [];
-  const comps = useQuery(api.competitions.list, isAdmin ? {} : "skip") ?? [];
+  const stats = useSafeQuery(api.admin.platformStats, isAdmin ? {} : "skip");
+  const revenue = useSafeQuery(api.admin.revenue, isAdmin ? {} : "skip");
+  const users = useSafeQuery(api.admin.listUsers, isAdmin ? {} : "skip") ?? [];
+  const queue = useSafeQuery(api.admin.moderationQueue, isAdmin ? {} : "skip") ?? [];
+  const comps = useSafeQuery(api.competitions.list, isAdmin ? {} : "skip") ?? [];
 
   const setUserRole = useMutation(api.admin.setUserRole);
   const setUserBanned = useMutation(api.admin.setUserBanned);
@@ -87,11 +88,11 @@ export default function Admin() {
   const [busy, setBusy] = useState(false);
 
   // ── Growth ops: verification, label, banners, store ──
-  const verifications = useQuery(api.network.listVerificationRequests, isAdmin ? {} : "skip") ?? [];
-  const labelQueue = useQuery(api.network.listLabelSubmissions, isAdmin ? {} : "skip") ?? [];
-  const bannerList = useQuery(api.banners.listAll, isAdmin ? {} : "skip") ?? [];
-  const storeProducts = useQuery(api.store.listProducts, isAdmin ? {} : "skip") ?? [];
-  const storeEvents = useQuery(api.store.listEvents, isAdmin ? {} : "skip") ?? [];
+  const verifications = useSafeQuery(api.network.listVerificationRequests, isAdmin ? {} : "skip") ?? [];
+  const labelQueue = useSafeQuery(api.network.listLabelSubmissions, isAdmin ? {} : "skip") ?? [];
+  const bannerList = useSafeQuery(api.banners.listAll, isAdmin ? {} : "skip") ?? [];
+  const storeProducts = useSafeQuery(api.store.listProducts, isAdmin ? {} : "skip") ?? [];
+  const storeEvents = useSafeQuery(api.store.listEvents, isAdmin ? {} : "skip") ?? [];
 
   const reviewVerification = useMutation(api.network.reviewVerification);
   const reviewLabel = useMutation(api.network.reviewLabelSubmission);

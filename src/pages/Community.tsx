@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -63,8 +64,8 @@ function MetaBadge() {
 
 export default function Community() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const feed = useQuery(api.community.listFeed, {}) ?? [];
-  const stats = useQuery(api.community.stats, {}) ?? {
+  const feed = useSafeQuery(api.community.listFeed, {}) ?? [];
+  const stats = useSafeQuery(api.community.stats, {}) ?? {
     posts: 0,
     members: 0,
     comments: 0,
@@ -386,7 +387,7 @@ function CommunityComments({
   onClose: () => void;
 }) {
   const { user } = useAuth();
-  const comments = useQuery(api.community.listComments, { postId }) ?? [];
+  const comments = useSafeQuery(api.community.listComments, { postId }) ?? [];
   const addComment = useMutation(api.community.addComment);
   const removeComment = useMutation(api.community.removeComment);
   const [body, setBody] = useState("");

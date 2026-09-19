@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { toast } from "sonner";
 import { Trophy, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -24,7 +24,7 @@ const D = 24 * 60 * 60 * 1000;
 
 export default function CreateCompetition() {
   const navigate = useNavigate();
-  const categories = useQuery(api.profiles.getCategories, {}) ?? [];
+  const categories = useSafeQuery(api.profiles.getCategories, {}) ?? [];
   const create = useMutation(api.competitions.create);
 
   const [title, setTitle] = useState("");

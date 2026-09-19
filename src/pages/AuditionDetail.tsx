@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { useParams, Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
@@ -18,7 +18,7 @@ function daysAgo(ts: number) {
 export default function AuditionDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const entry = useQuery(
+  const entry = useSafeQuery(
     api.entries.getById,
     id ? { id: id as never } : "skip",
   );

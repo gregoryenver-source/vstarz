@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,7 @@ import { useState } from "react";
 
 export default function Live() {
   const { user } = useAuth();
-  const rooms = useQuery(api.live.listLive, {}) ?? { live: [], scheduled: [] };
+  const rooms = useSafeQuery(api.live.listLive, {}) ?? { live: [], scheduled: [] };
   const createRoom = useMutation(api.live.create);
 
   const [open, setOpen] = useState(false);

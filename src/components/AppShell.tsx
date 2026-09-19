@@ -19,7 +19,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { api } from "@/convex/_generated/api";
 import { SponsorBanner } from "@/components/SponsorBanner";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import {
   LayoutDashboard,
   Trophy,
@@ -68,8 +69,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const credits = user?.votingCredits ?? 0;
   const plan = user?.plan ?? "free";
 
-  const unread = useQuery(api.notifications.unreadCount, {}) ?? 0;
-  const notifications = useQuery(api.notifications.listMine, {}) ?? [];
+  const unread = useSafeQuery(api.notifications.unreadCount, {}) ?? 0;
+  const notifications = useSafeQuery(api.notifications.listMine, {}) ?? [];
   const markAllRead = useMutation(api.notifications.markAllRead);
   const markRead = useMutation(api.notifications.markRead);
 

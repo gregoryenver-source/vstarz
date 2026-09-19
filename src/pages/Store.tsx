@@ -1,6 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,9 +22,9 @@ function zar(cents: number) {
 
 export default function StorePage() {
   const { user } = useAuth();
-  const products = useQuery(api.store.listProducts, {}) ?? [];
-  const events = useQuery(api.store.listEvents, {}) ?? [];
-  const orders = useQuery(api.store.myOrders, {}) ?? [];
+  const products = useSafeQuery(api.store.listProducts, {}) ?? [];
+  const events = useSafeQuery(api.store.listEvents, {}) ?? [];
+  const orders = useSafeQuery(api.store.myOrders, {}) ?? [];
 
   const purchase = useMutation(api.store.purchase);
   const [quantities, setQuantities] = useState<Record<string, number>>({});

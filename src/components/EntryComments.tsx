@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 export function EntryComments({ entryId, entryTitle }: { entryId: Id<"entries">; entryTitle: string }) {
   const { user } = useAuth();
-  const comments = useQuery(api.comments.listForEntry, { entryId, limit: 40 }) ?? [];
+  const comments = useSafeQuery(api.comments.listForEntry, { entryId, limit: 40 }) ?? [];
   const addComment = useMutation(api.comments.add);
   const removeComment = useMutation(api.comments.remove);
 

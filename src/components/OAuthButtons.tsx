@@ -1,5 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useQuery } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Loader2, Link2, CheckCircle2 } from "lucide-react";
@@ -51,7 +51,7 @@ export function OAuthButtons({
   onAutoStarted,
 }: OAuthButtonsProps) {
   const { signIn } = useAuthActions();
-  const configured = useQuery(api.authProviders.configured);
+  const configured = useSafeQuery(api.authProviders.configured);
   const [busy, setBusy] = useState<MetaProvider | null>(null);
   const autoStartFired = useRef(false);
 
@@ -160,8 +160,8 @@ export function OAuthButtons({
  * Linked social accounts panel for the profile page.
  */
 export function LinkedAccounts() {
-  const linked = useQuery(api.authProviders.myLinkedAccounts);
-  const configured = useQuery(api.authProviders.configured);
+  const linked = useSafeQuery(api.authProviders.myLinkedAccounts);
+  const configured = useSafeQuery(api.authProviders.configured);
 
   if (configured === undefined || linked === undefined) return null;
 

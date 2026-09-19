@@ -1,6 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -31,11 +32,11 @@ const CATEGORIES = [
 
 export default function NetworkPage() {
   const { user } = useAuth();
-  const clubs = useQuery(api.network.listFanClubs, {}) ?? [];
-  const posts = useQuery(api.network.listNetworkPosts, {}) ?? [];
-  const memberships = useQuery(api.network.myMemberships, {}) ?? [];
-  const myVerification = useQuery(api.network.myVerification, {}) ?? null;
-  const mySubmissions = useQuery(api.network.myLabelSubmissions, {}) ?? [];
+  const clubs = useSafeQuery(api.network.listFanClubs, {}) ?? [];
+  const posts = useSafeQuery(api.network.listNetworkPosts, {}) ?? [];
+  const memberships = useSafeQuery(api.network.myMemberships, {}) ?? [];
+  const myVerification = useSafeQuery(api.network.myVerification, {}) ?? null;
+  const mySubmissions = useSafeQuery(api.network.myLabelSubmissions, {}) ?? [];
 
   const joinClub = useMutation(api.network.joinFanClub);
   const leaveClub = useMutation(api.network.leaveFanClub);

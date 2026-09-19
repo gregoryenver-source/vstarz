@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useSafeQuery } from "@/lib/safe-query";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -37,21 +38,21 @@ export default function Profile() {
   const toggleFollow = useMutation(api.profiles.toggleFollow);
 
   const targetId = userId as Id<"users"> | undefined;
-  const target = useQuery(
+  const target = useSafeQuery(
     api.profiles.getPublicProfile,
     !isOwn && targetId ? { userId: targetId } : "skip",
   );
-  const following = useQuery(
+  const following = useSafeQuery(
     api.profiles.isFollowing,
     !isOwn && targetId ? { targetId } : "skip",
   );
 
-  const myEntries = useQuery(
+  const myEntries = useSafeQuery(
     api.entries.listMine,
     isOwn ? {} : "skip",
   ) ?? [];
 
-  const categories = useQuery(api.profiles.getCategories, {}) ?? [];
+  const categories = useSafeQuery(api.profiles.getCategories, {}) ?? [];
 
   // Seed the edit form directly from the auth user. The form fields are the
   // source of truth while editing; Convex updates stream back into `user`, and
@@ -300,7 +301,7 @@ function ProfilePublic({
   isFollowing: boolean;
   onFollow: () => void;
 }) {
-  const categories = useQuery(api.profiles.getCategories, {}) ?? [];
+  const categories = useSafeQuery(api.profiles.getCategories, {}) ?? [];
   const talentNames = (user.talents ?? [])
     .map((slug) => categories.find((c) => c.slug === slug)?.name ?? slug)
     .map((n) => n[0].toUpperCase() + n.slice(1));
