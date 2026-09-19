@@ -5,7 +5,11 @@
 set -euo pipefail
 
 export VITE_APP_BASE=/vstarz/
-export VITE_CONVEX_URL=https://combative-kookabura-535.convex.cloud
+# Backend deployment (owned by the project owner):
+#   https://posh-ostrich-667.convex.cloud  — created 2026-09-19 after the
+#   original platform-provisioned deployment (combative-kookabura-535) proved
+#   inaccessible from the owner's Convex account.
+export VITE_CONVEX_URL=https://posh-ostrich-667.convex.cloud
 
 bun run build
 
