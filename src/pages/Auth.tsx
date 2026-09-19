@@ -13,12 +13,28 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-
+import { PhoneInput } from "@/components/PhoneInput";
 import { VStarzLogo } from "@/components/VStarzLogo";
 import { useAuth } from "@/hooks/use-auth";
-import { Sparkles, Star, Loader2, Mail, ArrowRight, UserX, KeyRound } from "lucide-react";
+import { api } from "@/convex/_generated/api";
+import { COUNTRY_CODES, toE164, type CountryDialingCode } from "@/lib/countryCodes";
+import { OAuthButtons } from "@/components/OAuthButtons";
+import type { MetaProvider } from "@/components/OAuthButtons";
+import {
+  Sparkles,
+  Loader2,
+  Mail,
+  Phone,
+  ArrowRight,
+  UserX,
+  KeyRound,
+  ShieldCheck,
+  MessageSquare,
+} from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
+import { useMutation } from "convex/react";
 
 interface AuthProps {
   redirectAfterAuth?: string;
@@ -34,25 +50,87 @@ function resolveRedirectAfterAuth(
   return fallback;
 }
 
+function storedCountry(): CountryDialingCode {
+  try {
+    const iso = localStorage.getItem("vstarz:country");
+    return COUNTRY_CODES.find((c) => c.iso === iso) ?? COUNTRY_CODES[0];
+  } catch {
+    return COUNTRY_CODES[0];
+  }
+}
+
 function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const { isLoading: authLoading, isAuthenticated, signIn } = useAuth();
+  const completeSignup = useMutation(api.users.completePhoneSignup);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = resolveRedirectAfterAuth(
     searchParams.get("returnTo"),
     redirectAfterAuth,
   );
-  const [step, setStep] = useState<"signIn" | "otp" | "forgot">("signIn");
+  // ?connect=facebook|instagram deep link — starts that provider's OAuth
+  // handoff automatically (used by the homepage "connect" icons).
+  const connectParam = searchParams.get("connect");
+  const autoConnect: MetaProvider | null =
+    connectParam === "facebook" || connectParam === "instagram"
+      ? connectParam
+      : null;
+  const clearConnect = () => {
+    if (!autoConnect) return;
+    searchParams.delete("connect");
+    navigate(
+      { pathname: "/auth", search: searchParams.toString() },
+      { replace: true },
+    );
+  };
+
+  const [method, setMethod] = useState<"phone" | "email">("phone");
+  const [step, setStep] = useState<
+    "identify" | "otp" | "profile" | "forgot"
+  >("identify");
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState<CountryDialingCode>(() =>
+    storedCountry(),
+  );
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [profile, setProfile] = useState({ name: "", email2: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
+    if (!authLoading && isAuthenticated && step !== "profile") {
       navigate(redirect);
     }
-  }, [authLoading, isAuthenticated, navigate, redirect]);
+  }, [authLoading, isAuthenticated, navigate, redirect, step]);
+
+  // ── Step 1: request the OTP ────────────────────────────────────────────
+  const handlePhoneSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const e164 = toE164(country.code, phone);
+    if (!/^\+[1-9]\d{7,14}$/.test(e164)) {
+      setError("Please enter a valid mobile number for the selected country.");
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.set("phone", e164);
+      await signIn("phone-otp", formData);
+      setStep("otp");
+      toast.success(`Code sent to ${e164}`);
+    } catch (err) {
+      console.error("Phone sign-in error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to send the verification code. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -63,31 +141,89 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       await signIn("email-otp", formData);
       setEmail(formData.get("email") as string);
       setStep("otp");
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Email sign-in error:", error);
+    } catch (err) {
+      console.error("Email sign-in error:", err);
       setError(
-        error instanceof Error
-          ? error.message
+        err instanceof Error
+          ? err.message
           : "Failed to send verification code. Please try again.",
       );
+    } finally {
       setIsLoading(false);
     }
   };
 
+  // ── Step 2: verify the OTP ─────────────────────────────────────────────
   const handleOtpSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
     try {
-      const formData = new FormData(event.currentTarget);
-      await signIn("email-otp", formData);
-      navigate(redirect);
-    } catch (error) {
-      console.error("OTP verification error:", error);
-      setError("The verification code you entered is incorrect.");
-      setIsLoading(false);
+      const formData = new FormData();
+      if (method === "phone") {
+        formData.set("phone", toE164(country.code, phone));
+      } else {
+        formData.set("email", email);
+      }
+      formData.set("code", otp);
+      await signIn(method === "phone" ? "phone-otp" : "email-otp", formData);
+      setStep("profile");
+    } catch (err) {
+      console.error("OTP verification error:", err);
+      setError("The verification code you entered is incorrect or expired.");
       setOtp("");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ── Step 3: capture sign-up details ────────────────────────────────────
+  const handleProfileSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    try {
+      const name = profile.name.trim();
+      if (!name) {
+        throw new Error("Please enter your name.");
+      }
+      await completeSignup({
+        name,
+        country: country.iso,
+        email: profile.email2.trim() || undefined,
+      });
+      toast.success(`Welcome to the stage, ${name}!`);
+      navigate(redirect);
+    } catch (err) {
+      console.error("Profile capture error:", err);
+      setError(
+        err instanceof Error ? err.message : "Could not save your details.",
+      );
+      setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      if (method === "phone") {
+        formData.set("phone", toE164(country.code, phone));
+        await signIn("phone-otp", formData);
+      } else {
+        formData.set("email", email);
+        await signIn("email-otp", formData);
+      }
+      setOtp("");
+      toast.success("A fresh code is on its way.");
+    } catch (err) {
+      console.error("Resend error:", err);
+      setError("Could not resend the code. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,101 +233,149 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     try {
       await signIn("anonymous");
       navigate(redirect);
-    } catch (error) {
-      console.error("Guest login error:", error);
+    } catch (err) {
+      console.error("Guest login error:", err);
       setError(
         `Failed to sign in as guest: ${
-          error instanceof Error ? error.message : "Unknown error"
+          err instanceof Error ? err.message : "Unknown error"
         }`,
       );
       setIsLoading(false);
     }
   };
 
+  const maskedPhone = toE164(country.code, phone);
+
   return (
     <div className="min-h-screen flex flex-col relative">
       <div className="pointer-events-none absolute inset-0 bg-stage-grid opacity-40" />
       <div className="flex-1 flex items-center justify-center p-4 relative">
         <div className="w-full max-w-md">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <VStarzLogo className="size-12" glow={false} />
-            <div className="leading-none">
-              <span className="font-display text-3xl font-bold">
-                VStarz
-              </span>
-              <span className="block font-mont text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Powered by Roc Nation Africa
-              </span>
-            </div>
+          <div className="flex flex-col items-center mb-8">
+            <VStarzLogo className="h-12 w-auto" glow={false} />
           </div>
 
           <Card className="card-spot shadow-2xl">
-            {step === "signIn" && (
+            {step === "identify" && (
               <>
                 <CardHeader className="text-center">
                   <CardTitle className="font-display text-2xl">
                     Step onto the stage
                   </CardTitle>
                   <CardDescription>
-                    Enter your email to sign in or create your account — new
-                    members can post an audition in minutes.
+                    Sign up or sign in with your mobile number — we'll text you
+                    a secure code. No passwords, ever.
                   </CardDescription>
                 </CardHeader>
-                <form onSubmit={handleEmailSubmit}>
-                  <CardContent className="space-y-4">
-                    <div className="relative flex-1">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        name="email"
-                        placeholder="name@example.com"
-                        type="email"
-                        className="pl-9"
-                        disabled={isLoading}
-                        required
-                      />
-                    </div>
-                    {error && <p className="text-sm text-red-400">{error}</p>}
+
+                <div className="px-6 pb-1">
+                  <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
                     <Button
-                      type="submit"
-                      className="w-full gap-2 font-semibold"
-                      disabled={isLoading}
+                      type="button"
+                      variant={method === "phone" ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => setMethod("phone")}
                     >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Sparkles className="h-4 w-4" />
-                      )}
-                      Continue with email
+                      <Phone className="h-3.5 w-3.5" />
+                      Mobile
                     </Button>
+                    <Button
+                      type="button"
+                      variant={method === "email" ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => setMethod("email")}
+                    >
+                      <Mail className="h-3.5 w-3.5" />
+                      Email
+                    </Button>
+                  </div>
+                </div>
 
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
-                          Or
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-2">
+                {method === "phone" ? (
+                  <form onSubmit={handlePhoneSubmit}>
+                    <CardContent className="space-y-4">
+                      <PhoneInput
+                        value={phone}
+                        onChange={(v) => setPhone(v)}
+                        country={country}
+                        onCountryChange={setCountry}
+                        disabled={isLoading}
+                      />
+                      {error && <p className="text-sm text-red-400">{error}</p>}
                       <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full gap-2"
-                        onClick={handleGuestLogin}
+                        type="submit"
+                        className="w-full gap-2 font-semibold"
+                        disabled={isLoading || phone.replace(/\D/g, "").length < 6}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <MessageSquare className="h-4 w-4" />
+                        )}
+                        Send SMS code
+                      </Button>
+                    </CardContent>
+                  </form>
+                ) : (
+                  <form onSubmit={handleEmailSubmit}>
+                    <CardContent className="space-y-4">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          name="email"
+                          placeholder="name@example.com"
+                          type="email"
+                          className="pl-9"
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
+                      {error && <p className="text-sm text-red-400">{error}</p>}
+                      <Button
+                        type="submit"
+                        className="w-full gap-2 font-semibold"
                         disabled={isLoading}
                       >
-                        <UserX className="h-4 w-4" />
-                        Continue as guest
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4" />
+                        )}
+                        Continue with email
                       </Button>
-                      <p className="text-xs text-muted-foreground text-center pt-1">
-                        Google &amp; Apple sign-in arrive with the mobile apps.
-                      </p>
+                    </CardContent>
+                  </form>
+                )}
+
+                <CardContent className="space-y-3 pt-0">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
                     </div>
-                  </CardContent>
-                </form>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">
+                        Or
+                      </span>
+                    </div>
+                  </div>
+                  <OAuthButtons redirectTo={redirect} autoStart={autoConnect} onAutoStarted={clearConnect} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={handleGuestLogin}
+                    disabled={isLoading}
+                  >
+                    <UserX className="h-4 w-4" />
+                    Continue as guest
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center pt-1">
+                    Connecting with Facebook or Instagram? Approve VStarz once
+                    and you're in — your account links automatically.
+                  </p>
+                </CardContent>
               </>
             )}
 
@@ -199,16 +383,16 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               <>
                 <CardHeader className="text-center">
                   <CardTitle className="font-display text-2xl">
-                    Check your email
+                    {method === "phone" ? "Confirm your number" : "Check your email"}
                   </CardTitle>
                   <CardDescription>
-                    We sent a 6-digit code to {email}
+                    {method === "phone"
+                      ? `We sent a 6-digit code by SMS to ${maskedPhone}`
+                      : `We sent a 6-digit code to ${email}`}
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleOtpSubmit}>
                   <CardContent className="space-y-4">
-                    <input type="hidden" name="email" value={email} />
-                    <input type="hidden" name="code" value={otp} />
                     <div className="flex justify-center">
                       <InputOTP
                         value={otp}
@@ -231,9 +415,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       <Button
                         variant="link"
                         className="p-0 h-auto text-primary"
-                        onClick={() => setStep("signIn")}
+                        onClick={handleResend}
+                        disabled={isLoading}
                       >
-                        Try again
+                        Resend
                       </Button>
                     </p>
                   </CardContent>
@@ -250,19 +435,107 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         </>
                       ) : (
                         <>
+                          <ShieldCheck className="mr-2 h-4 w-4" />
                           Verify code
-                          <ArrowRight className="ml-2 h-4 w-4" />
                         </>
                       )}
                     </Button>
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => setStep("signIn")}
+                      onClick={() => {
+                        setStep("identify");
+                        setOtp("");
+                      }}
                       disabled={isLoading}
                       className="w-full"
                     >
-                      Use a different email
+                      Use a different {method === "phone" ? "number" : "email"}
+                    </Button>
+                  </CardFooter>
+                </form>
+              </>
+            )}
+
+            {step === "profile" && (
+              <>
+                <CardHeader className="text-center">
+                  <CardTitle className="font-display text-2xl flex items-center justify-center gap-2">
+                    <Sparkles className="size-5 text-primary" />
+                    You're verified!
+                  </CardTitle>
+                  <CardDescription>
+                    Tell us who you are so fans and judges can find you.
+                  </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleProfileSubmit}>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium">
+                        Stage or real name
+                      </label>
+                      <Input
+                        value={profile.name}
+                        onChange={(e) =>
+                          setProfile((p) => ({ ...p, name: e.target.value }))
+                        }
+                        placeholder="e.g. Thandi M"
+                        disabled={isLoading}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium">
+                        Country
+                      </label>
+                      <select
+                        value={country.iso}
+                        onChange={(e) => {
+                          const next = COUNTRY_CODES.find(
+                            (c) => c.iso === e.target.value,
+                          );
+                          if (next) setCountry(next);
+                        }}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                        disabled={isLoading}
+                      >
+                        {COUNTRY_CODES.map((c) => (
+                          <option key={c.iso} value={c.iso}>
+                            {c.flag} {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium">
+                        Email <span className="text-muted-foreground">(optional)</span>
+                      </label>
+                      <Input
+                        type="email"
+                        value={profile.email2}
+                        onChange={(e) =>
+                          setProfile((p) => ({ ...p, email2: e.target.value }))
+                        }
+                        placeholder="name@example.com"
+                        disabled={isLoading}
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Add an email for backup sign-in and announcements.
+                      </p>
+                    </div>
+                    {error && <p className="text-sm text-red-400">{error}</p>}
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      type="submit"
+                      className="w-full gap-2 font-semibold"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : null}
+                      Enter the stage
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </CardFooter>
                 </form>
@@ -277,14 +550,15 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     Reset access
                   </CardTitle>
                   <CardDescription>
-                    vStarz uses passwordless codes — just re-enter your email
-                    and we'll send a fresh sign-in code. No password to forget.
+                    VStarz uses passwordless codes — just re-enter your mobile
+                    number or email and we'll send a fresh one. No password to
+                    forget.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button
                     className="w-full font-semibold"
-                    onClick={() => setStep("signIn")}
+                    onClick={() => setStep("identify")}
                   >
                     Back to sign in
                   </Button>

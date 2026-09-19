@@ -18,9 +18,9 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { api } from "@/convex/_generated/api";
+import { SponsorBanner } from "@/components/SponsorBanner";
 import { useQuery, useMutation } from "convex/react";
 import {
-  Star,
   LayoutDashboard,
   Trophy,
   Radio,
@@ -34,6 +34,11 @@ import {
   Zap,
   Store,
   Network,
+  Users as CommunityIcon,
+  GraduationCap,
+  IdCard,
+  ShieldCheck as ShieldCheckNav,
+  BarChart3,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
@@ -44,8 +49,13 @@ const nav = [
   { to: "/competitions", label: "Competitions", icon: Trophy },
   { to: "/live", label: "Live", icon: Radio },
   { to: "/network", label: "Network", icon: Network },
+  { to: "/community", label: "Community", icon: CommunityIcon },
   { to: "/store", label: "Store", icon: Store },
   { to: "/boost", label: "Boost", icon: Crown },
+  { to: "/academy", label: "Academy", icon: GraduationCap },
+  { to: "/passport", label: "Talent Passport", icon: IdCard },
+  { to: "/protection", label: "Protection Vault", icon: ShieldCheckNav },
+  { to: "/sponsors", label: "Sponsor Intel", icon: BarChart3 },
   { to: "/profile", label: "My Profile", icon: User },
 ];
 
@@ -121,11 +131,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <Menu className="size-5" />
           </Button>
-          <Link to="/dashboard" className="flex items-center gap-2.5">
-            <VStarzLogo className="size-8" glow={false} />
-            <span className="hidden font-display text-xl font-bold tracking-wide sm:block">
-              VStarz
-            </span>
+          <Link to="/dashboard" className="flex items-center">
+            <VStarzLogo className="h-8 w-auto" glow={false} />
           </Link>
 
           <div className="ml-auto flex items-center gap-2">
@@ -229,6 +236,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/passport")}>
+                  <IdCard className="mr-2 size-4" /> Talent Passport
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <User className="mr-2 size-4" /> My profile
                 </DropdownMenuItem>
@@ -252,6 +262,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
+
+      {/* Brand takeover — Ignition Group sponsor banner directly below the header */}
+      <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6">
+        <SponsorBanner />
+      </div>
 
       {/* Mobile nav drawer */}
       {mobileOpen && (

@@ -54,6 +54,8 @@ const schema = defineSchema(
       image: v.optional(v.string()), // image of the user. do not remove
       email: v.optional(v.string()), // email of the user. do not remove
       emailVerificationTime: v.optional(v.number()), // email verification time. do not remove
+      phone: v.optional(v.string()), // E.164 phone number, e.g. +27794999885
+      phoneVerificationTime: v.optional(v.number()), // phone verification time
       isAnonymous: v.optional(v.boolean()), // is the user anonymous. do not remove
 
       role: v.optional(roleValidator), // role of the user. do not remove
@@ -75,8 +77,10 @@ const schema = defineSchema(
       planExpiresAt: v.optional(v.number()),
       votingCredits: v.optional(v.number()),
       badges: v.optional(v.array(v.string())),
+      country: v.optional(v.string()), // Global Championship qualifiers
     })
       .index("email", ["email"]) // index for the email. do not remove or modify
+      .index("phone", ["phone"]) // index for phone sign-in / account linking. do not remove
       .index("username", ["username"])
       .index("role", ["role"]),
 
@@ -418,6 +422,235 @@ const schema = defineSchema(
       score: v.optional(v.number()), // 0-100 composite
       createdAt: v.number(),
     }).index("by_kind", ["kind"]),
+
+    // ── VStarz Academy (Creator OS: learning & certification) ────────────
+    academyCourses: defineTable({
+      title: v.string(),
+      slug: v.string(),
+      track: v.union(
+        v.literal("vocal"),
+        v.literal("songwriting"),
+        v.literal("dance"),
+        v.literal("acting"),
+        v.literal("content"),
+        v.literal("branding"),
+        v.literal("business"),
+      ),
+      level: v.union(v.literal("starter"), v.literal("pro"), v.literal("elite")),
+      description: v.string(),
+      lessons: v.number(),
+      badge: v.string(), // badge slug awarded on completion
+      active: v.boolean(),
+      sortOrder: v.number(),
+      createdAt: v.number(),
+    }).index("by_slug", ["slug"]).index("by_active", ["active"]),
+
+    academyEnrollments: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("academyCourses"),
+      completedLessons: v.number(),
+      completedAt: v.optional(v.number()),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_course", ["userId", "courseId"]),
+
+    // ── Digital Audition Rooms (labels, brands, agencies, casting) ──────
+    auditionRooms: defineTable({
+      title: v.string(),
+      brand: v.string(),
+      kind: v.union(
+        v.literal("casting_call"),
+        v.literal("brand_challenge"),
+        v.literal("private_competition"),
+        v.literal("label_audition"),
+      ),
+      description: v.string(),
+      status: v.union(v.literal("open"), v.literal("screening"), v.literal("closed")),
+      hostId: v.id("users"),
+      talentCategory: v.optional(v.string()),
+      prize: v.optional(v.string()),
+      deadlineAt: v.optional(v.number()),
+      createdAt: v.number(),
+    })
+      .index("by_status", ["status"])
+      .index("by_host", ["hostId"]),
+
+    auditionInvites: defineTable({
+      roomId: v.id("auditionRooms"),
+      userId: v.id("users"),
+      status: v.union(
+        v.literal("applied"), // talent applied
+        v.literal("invited"), // host invited
+        v.literal("accepted"),
+        v.literal("declined"),
+      ),
+      createdAt: v.number(),
+    })
+      .index("by_room", ["roomId"])
+      .index("by_user", ["userId"]),
+
+    // ── Team Competitions (crews, choirs, schools, countries) ───────────
+    teams: defineTable({
+      name: v.string(),
+      kind: v.union(
+        v.literal("choir"),
+        v.literal("dance_crew"),
+        v.literal("band"),
+        v.literal("school"),
+        v.literal("university"),
+        v.literal("province"),
+        v.literal("country"),
+      ),
+      affiliation: v.string(), // "Durban", "UCT", "Nigeria"…
+      captainId: v.id("users"),
+      memberCount: v.number(),
+      createdAt: v.number(),
+    }).index("by_kind", ["kind"]),
+
+    teamMembers: defineTable({
+      teamId: v.id("teams"),
+      userId: v.id("users"),
+      createdAt: v.number(),
+    })
+      .index("by_team", ["teamId"])
+      .index("by_user", ["userId"]),
+
+    // ── Creator Marketplace 2.0 (services & digital goods) ──────────────
+    marketListings: defineTable({
+      sellerId: v.id("users"),
+      title: v.string(),
+      category: v.union(
+        v.literal("beats"),
+        v.literal("lyrics"),
+        v.literal("artwork"),
+        v.literal("logos"),
+        v.literal("video_editing"),
+        v.literal("vocal_feature"),
+        v.literal("session_musician"),
+        v.literal("choreography"),
+      ),
+      description: v.string(),
+      priceCents: v.number(),
+      active: v.boolean(),
+      salesCount: v.number(),
+      createdAt: v.number(),
+    })
+      .index("by_active", ["active"])
+      .index("by_seller", ["sellerId"]),
+
+    marketOrders: defineTable({
+      listingId: v.id("marketListings"),
+      listingTitle: v.string(),
+      buyerId: v.id("users"),
+      sellerId: v.id("users"),
+      amountCents: v.number(),
+      status: v.union(v.literal("pending"), v.literal("completed"), v.literal("cancelled")),
+      createdAt: v.number(),
+    })
+      .index("by_buyer", ["buyerId"])
+      .index("by_seller", ["sellerId"]),
+
+    // ── Franchise Model (VStarz Durban, Nigeria, Gospel…) ───────────────
+    franchises: defineTable({
+      name: v.string(),
+      slug: v.string(),
+      kind: v.union(
+        v.literal("city"),
+        v.literal("country"),
+        v.literal("gospel"),
+        v.literal("schools"),
+        v.literal("universities"),
+      ),
+      region: v.string(),
+      ownerId: v.id("users"),
+      description: v.string(),
+      status: v.union(v.literal("pending"), v.literal("approved")),
+      memberCount: v.number(),
+      createdAt: v.number(),
+    }).index("by_status", ["status"]),
+
+    // ── VStarz Originals (media arm) ─────────────────────────────────────
+    originals: defineTable({
+      title: v.string(),
+      kind: v.union(
+        v.literal("documentary"),
+        v.literal("behind_the_scenes"),
+        v.literal("winner_journey"),
+        v.literal("interview"),
+      ),
+      videoUrl: v.string(),
+      description: v.string(),
+      featured: v.boolean(),
+      publishedAt: v.number(),
+    }).index("by_published", ["publishedAt"]),
+
+    // ── Creator Protection Suite (rights, contracts, royalties) ─────────
+    protectionItems: defineTable({
+      userId: v.id("users"),
+      kind: v.union(
+        v.literal("copyright"),
+        v.literal("contract"),
+        v.literal("royalty"),
+        v.literal("license"),
+      ),
+      title: v.string(),
+      details: v.string(),
+      reference: v.optional(v.string()), // registration ref / counterparty
+      amountCents: v.optional(v.number()), // royalty amounts
+      status: v.union(v.literal("active"), v.literal("pending"), v.literal("archived")),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── Fan Ownership Economy (rewards ledger) ───────────────────────────
+    fanRewards: defineTable({
+      userId: v.id("users"),
+      kind: v.union(
+        v.literal("early_discovery"),
+        v.literal("vote"),
+        v.literal("share"),
+        v.literal("referral"),
+        v.literal("community"),
+      ),
+      points: v.number(),
+      note: v.optional(v.string()),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    // ── Community (brought to you exclusively by Meta) ───────────────────
+    // Open social space for Creators, Voters and the Public. Engaging
+    // requires a connected account: vStarz (phone/email) or Meta (Facebook
+    // / Instagram via Convex Auth OAuth).
+    communityPosts: defineTable({
+      authorId: v.id("users"),
+      body: v.string(),
+      audience: v.union(
+        v.literal("creator"),
+        v.literal("voter"),
+        v.literal("public"),
+      ),
+      likeCount: v.number(),
+      commentCount: v.number(),
+      status: v.union(v.literal("visible"), v.literal("hidden")), // moderation
+      createdAt: v.number(),
+    })
+      .index("by_status_created", ["status", "createdAt"])
+      .index("by_author", ["authorId"]),
+
+    communityLikes: defineTable({
+      postId: v.id("communityPosts"),
+      userId: v.id("users"),
+      createdAt: v.number(),
+    })
+      .index("by_post_user", ["postId", "userId"])
+      .index("by_post", ["postId"]),
+
+    communityComments: defineTable({
+      postId: v.id("communityPosts"),
+      userId: v.id("users"),
+      body: v.string(),
+      createdAt: v.number(),
+    }).index("by_post", ["postId", "createdAt"]),
   },
   {
     schemaValidation: false,

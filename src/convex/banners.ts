@@ -1,15 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query, mutation, QueryCtx } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-
-async function requireUser(ctx: QueryCtx) {
-  const userId = await getAuthUserId(ctx);
-  if (userId === null) throw new Error("Not authenticated");
-  const user = await ctx.db.get(userId);
-  if (user === null) throw new Error("User not found");
-  if (user.isBanned) throw new Error("Account suspended");
-  return { userId, user };
-}
 
 function requireAdminUser(user: { role?: string; isBanned?: boolean }) {
   if (user.role !== "admin") throw new Error("Admin access required");

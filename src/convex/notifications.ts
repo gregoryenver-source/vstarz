@@ -11,7 +11,10 @@ async function requireUser(ctx: QueryCtx) {
 export const listMine = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await requireUser(ctx);
+    // Signed-out visitors (e.g. the /community connection gate) see an
+    // empty list instead of an error.
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) return [];
     const items = await ctx.db
       .query("notifications")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -24,7 +27,8 @@ export const listMine = query({
 export const unreadCount = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await requireUser(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) return 0;
     const items = await ctx.db
       .query("notifications")
       .withIndex("by_user", (q) => q.eq("userId", userId))

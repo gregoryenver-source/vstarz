@@ -80,23 +80,19 @@ export const getPublicProfile = query({
 });
 
 async function countFollowers(ctx: QueryCtx, userId: string) {
-  let n = 0;
-  for await (const _ of ctx.db
+  const followers = await ctx.db
     .query("follows")
-    .withIndex("by_following", (q) => q.eq("followingId", userId as never))) {
-    n++;
-  }
-  return n;
+    .withIndex("by_following", (q) => q.eq("followingId", userId as never))
+    .collect();
+  return followers.length;
 }
 
 async function countFollowing(ctx: QueryCtx, userId: string) {
-  let n = 0;
-  for await (const _ of ctx.db
+  const following = await ctx.db
     .query("follows")
-    .withIndex("by_follower", (q) => q.eq("followerId", userId as never))) {
-    n++;
-  }
-  return n;
+    .withIndex("by_follower", (q) => q.eq("followerId", userId as never))
+    .collect();
+  return following.length;
 }
 
 export const isFollowing = query({

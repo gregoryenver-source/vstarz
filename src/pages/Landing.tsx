@@ -28,12 +28,20 @@ import {
   Gavel,
   Scale,
   ShieldCheck,
+  Mail,
+  Phone,
+  UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VStarzLogo } from "@/components/VStarzLogo";
+import { SponsorBanner } from "@/components/SponsorBanner";
+import { OAuthButtons } from "@/components/OAuthButtons";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
+import { HottestAuditions } from "@/components/HottestAuditions";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "react-router";
+import { useEffect } from "react";
 
 const categories = [
   { name: "Singing", icon: Mic },
@@ -119,8 +127,31 @@ const leaderboardRows = [
   { name: "Nova L.", tag: "Rap", public: 9433, score: 84 },
 ];
 
+const contacts = [
+  {
+    name: "Judah",
+    role: "Chief Strategy Officer",
+    emails: ["judah@judahcorporation.co.za", "judah@rocnation.co.za"],
+    mobile: "+27 794999885",
+  },
+  {
+    name: "Adrian Pillay",
+    role: "Chief Executive Officer",
+    emails: ["adrian@judahcorporation.co.za"],
+    mobile: "+27 66 486 7806",
+  },
+];
+
 export default function Landing() {
   const { isAuthenticated } = useAuth();
+
+  // Seed demo content (competitions, auditions, sponsor banner) for signed-out
+  // visitors too — every step is idempotent.
+  const seedDemo = useMutation(api.bootstrap.createDemoData);
+  useEffect(() => {
+    // Seeding is best-effort: never let a backend error break page render.
+    seedDemo({}).catch(() => {});
+  }, [seedDemo]);
 
   // Digital real estate — brand takeover slot
   const heroBanners = useQuery(api.banners.getActiveBanners, { placement: "home_hero" }) ?? [];
@@ -138,16 +169,8 @@ export default function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <VStarzLogo className="size-8" glow={false} />
-            <div className="leading-none">
-              <span className="font-display text-xl font-bold tracking-wide">
-                VStarz
-              </span>
-              <span className="block font-mont text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Powered by Roc Nation Africa
-              </span>
-            </div>
+          <Link to="/" className="flex items-center">
+            <VStarzLogo className="h-8 w-auto" glow={false} />
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#voting" className="transition-colors hover:text-foreground">Voting</a>
@@ -157,6 +180,11 @@ export default function Landing() {
             <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
           </nav>
           <div className="flex items-center gap-2">
+            {/* One-tap Facebook / Instagram connect — always visible up top */}
+            <OAuthButtons
+              variant="icon"
+              redirectTo="/dashboard"
+            />
             <Button asChild variant="ghost" size="sm">
               <Link to={isAuthenticated ? "/dashboard" : "/auth"}>Sign in</Link>
             </Button>
@@ -170,11 +198,28 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Digital real estate — brand takeover above the V */}
-      {takeover && (
+      {/* Digital real estate — brand takeover above the V (falls back to the
+          static Ignition Group banner until a DB banner exists) */}
+      {takeover ? (
         <section className="relative overflow-hidden border-b border-primary/25 bg-gradient-to-r from-[#180000] via-[#3d0000] to-[#180000]">
           <div className="absolute inset-0 bg-stage-grid opacity-20" />
           <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-6 sm:flex-row sm:items-center">
+            {takeover.advertiser.toLowerCase().includes("ignition") && (
+              <a
+                href="https://www.ignitiongroup.co.za/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex shrink-0 items-center rounded-xl bg-white/95 px-4 py-2.5 shadow-lg transition-transform hover:scale-[1.03]"
+                aria-label="Ignition Group — visit ignitiongroup.co.za"
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}ignition-logo-possibility.png`}
+                  alt="Ignition Group — Powered by possibility"
+                  className="h-10 w-auto sm:h-12"
+                  loading="lazy"
+                />
+              </a>
+            )}
             <div
               ref={(el) => {
                 if (el && !el.dataset.impressed) {
@@ -206,9 +251,11 @@ export default function Landing() {
             </Button>
           </div>
         </section>
+      ) : (
+        <SponsorBanner />
       )}
 
-      {/* Hero — signature layout: giant glowing V left, headline right */}
+      {/* Hero — signature layout: official brand lockup left, headline right */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-stage-grid opacity-40" />
         <div className="hero-red-haze absolute inset-0" />
@@ -221,7 +268,7 @@ export default function Landing() {
             className="relative mx-auto flex w-full max-w-[320px] items-center justify-center lg:max-w-[420px]"
           >
             <div className="absolute inset-0 -z-10 mx-auto aspect-square w-[85%] rounded-full bg-primary/25 blur-[90px]" />
-            <VStarzLogo className="v-glow w-full" />
+            <VStarzLogo className="v-glow h-40 w-auto sm:h-52" />
           </motion.div>
 
           {/* Headline block */}
@@ -241,16 +288,17 @@ export default function Landing() {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mb-3 font-mont text-xs font-bold uppercase tracking-[0.3em] text-silver"
             >
-              Africa's Digital Talent Revolution
+              Discover · Compete · Create · Earn
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.5 }}
-              className="font-display text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl"
+              className="font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
             >
-              The world's first
-              <span className="block text-gradient-roc">digital mobile talent contest</span>
+              The World's First
+              <span className="block text-gradient-roc">Digital Mobile Talent Contest</span>
+              &amp; Creator Economy Platform
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 16 }}
@@ -258,9 +306,10 @@ export default function Landing() {
               transition={{ delay: 0.35, duration: 0.5 }}
               className="mt-6 max-w-xl text-lg text-muted-foreground max-lg:mx-auto"
             >
-              VStarz™ is a premium talent contest built for mobile. Post your
-              audition video, get scored by professional judges, and let the
-              public vote crown Africa's next star — entirely from your phone.
+              Discover, compete, create, and earn. VSTARZ empowers singers,
+              dancers, comedians, influencers, and creators to showcase their
+              talent, grow their audience, win prizes, and unlock new income
+              opportunities—all from their mobile device.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -288,6 +337,26 @@ export default function Landing() {
               </Button>
             </motion.div>
 
+            {/* Connect with Facebook / Instagram */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mt-8 rounded-2xl border border-border/60 bg-card/50 p-4 sm:p-5"
+            >
+              <p className="font-mont text-xs font-bold uppercase tracking-[0.2em] text-primary">
+                Connect to your Facebook or Instagram
+              </p>
+              <p className="mt-1 mb-3 text-sm text-muted-foreground">
+                One tap signs you up or links your account — no passwords, no
+                forms.
+              </p>
+              <OAuthButtons
+                stacked={false}
+                redirectTo="/dashboard"
+              />
+            </motion.div>
+
             {/* Trust strip */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -310,6 +379,13 @@ export default function Landing() {
             </motion.div>
           </div>
         </div>
+      </section>
+
+      {/* Hottest auditions this week — video carousel (live data) */}
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <QueryErrorBoundary fallback={null}>
+          <HottestAuditions />
+        </QueryErrorBoundary>
       </section>
 
       {/* Spotlight leaderboard strip */}
@@ -647,7 +723,7 @@ export default function Landing() {
       <section className="relative overflow-hidden py-28">
         <div className="absolute inset-0 bg-stage-grid opacity-40" />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
-          <VStarzLogo className="v-glow mx-auto mb-8 w-24" />
+          <VStarzLogo className="v-glow mx-auto mb-8 h-16 w-auto sm:h-20" />
           <h2 className="font-display text-4xl font-bold sm:text-5xl">
             Your audience is <span className="text-gradient-roc">waiting</span>
           </h2>
@@ -666,16 +742,69 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Contact */}
+      <section id="contact" className="border-t border-border/50 bg-card/30 py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4 border-primary/40 text-primary">
+              <UserRound className="mr-1.5 size-3.5" />
+              Contact
+            </Badge>
+            <h2 className="font-display text-4xl font-bold tracking-tight">
+              Talk to <span className="text-gradient-roc">the team</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Partnerships, sponsorship and press enquiries reach the
+              leadership team behind VStarz™ at Judah Corporation directly.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {contacts.map((c) => (
+              <motion.div
+                key={c.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.4 }}
+                className="card-spot rounded-3xl p-8"
+              >
+                <div className="flex items-center gap-2 text-primary">
+                  <UserRound className="size-5" />
+                  <h3 className="font-display text-xl font-semibold">{c.name}</h3>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-silver">{c.role}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Judah Corporation
+                </p>
+                <div className="mt-5 space-y-2.5 text-sm">
+                  {c.emails.map((email) => (
+                    <a
+                      key={email}
+                      href={`mailto:${email}`}
+                      className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-secondary/40 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-secondary/60"
+                    >
+                      <Mail className="size-4 shrink-0 text-primary" />
+                      <span className="truncate">{email}</span>
+                    </a>
+                  ))}
+                  <a
+                    href={`tel:${c.mobile.replace(/\s/g, "")}`}
+                    className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-secondary/40 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-secondary/60"
+                  >
+                    <Phone className="size-4 shrink-0 text-primary" />
+                    <span className="tabular-nums">{c.mobile}</span>
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <footer className="border-t border-border/50 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-muted-foreground sm:flex-row">
           <div className="flex items-center gap-2">
-            <VStarzLogo className="size-7" glow={false} />
-            <div className="leading-none">
-              <span className="font-display font-bold">VStarz™</span>
-              <span className="block text-[9px] uppercase tracking-[0.18em]">
-                Powered by Roc Nation Africa
-              </span>
-            </div>
+            <VStarzLogo className="h-7 w-auto" glow={false} />
           </div>
           <p>
             © 2026 Judah Corporation (Pty) Ltd · VStarz™ · Africa's Digital
@@ -690,6 +819,10 @@ export default function Landing() {
             >
               Judah Corporation
             </a>
+            <Link to="/download" className="font-semibold text-primary hover:text-primary/80">
+              Get the app
+            </Link>
+            <a href="#contact" className="hover:text-foreground">Contact</a>
             <a href="#pricing" className="hover:text-foreground">Pricing</a>
             <Link to="/auth" className="hover:text-foreground">Sign in</Link>
           </div>

@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { query, mutation, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
-import type { Doc, Id } from "./_generated/dataModel";
+import type { Doc } from "./_generated/dataModel";
 
 async function requireUser(ctx: QueryCtx) {
   const userId = await getAuthUserId(ctx);

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { VStarzLogo } from "@/components/VStarzLogo";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import {
   Download as DownloadIcon,
   Share2,
@@ -18,6 +19,7 @@ import {
   Trophy,
   Radio,
   Users,
+  Link2,
 } from "lucide-react";
 
 type Platform = "android" | "ios" | "desktop";
@@ -43,15 +45,13 @@ interface BeforeInstallPromptEvent extends Event {
 
 export default function Download() {
   const { isAuthenticated } = useAuth();
-  const [platform, setPlatform] = useState<Platform>("desktop");
-  const [installed, setInstalled] = useState(false);
+  // Client-only SPA: detect platform/standalone mode once on first render.
+  const [platform] = useState<Platform>(detectPlatform);
+  const [installed, setInstalled] = useState(detectStandalone);
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installState, setInstallState] = useState<"idle" | "prompted" | "done">("idle");
 
   useEffect(() => {
-    setPlatform(detectPlatform());
-    setInstalled(detectStandalone());
-
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       setInstallEvent(e as BeforeInstallPromptEvent);
@@ -77,22 +77,43 @@ export default function Download() {
     }
   };
 
-  const appUrl = `${window.location.origin}/vstarz`;
-  const downloadUrl = `${window.location.origin}/vstarz/download`;
+  // Base-aware download link: works at "/" (preview) and "/vstarz/" (production).
+  const downloadUrl = `${window.location.origin}${import.meta.env.BASE_URL}download`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(downloadUrl);
+      toast.success("Download link copied", {
+        description: "Share it — anyone can install VStarz from it.",
+      });
+    } catch {
+      toast.error("Could not copy — long-press the link below instead.");
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (!navigator.share) {
+      void handleCopyLink();
+      return;
+    }
+    try {
+      await navigator.share({
+        title: "VStarz™ — The World's First Digital Mobile Talent Contest & Creator Economy Platform",
+        text: "Install the VStarz app — auditions, live shows, voting and fan clubs in one app.",
+        url: downloadUrl,
+      });
+    } catch {
+      // user dismissed the share sheet
+    }
+  };
 
   return (
     <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-border/50 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <VStarzLogo className="size-8" glow={false} />
-            <div className="leading-none">
-              <span className="font-display text-xl font-bold tracking-wide">VStarz</span>
-              <span className="block font-mont text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Powered by Roc Nation Africa
-              </span>
-            </div>
+          <Link to="/" className="flex items-center">
+            <VStarzLogo className="h-8 w-auto" glow={false} />
           </Link>
           <Button asChild size="sm" className="font-semibold">
             <Link to={isAuthenticated ? "/dashboard" : "/auth?returnTo=%2Fdashboard"}>
@@ -117,8 +138,8 @@ export default function Download() {
             </h1>
             <p className="mt-4 max-w-lg text-lg text-muted-foreground max-lg:mx-auto">
               No app store required. Install VStarz directly from this page and carry
-              Africa's Digital Talent Revolution in your pocket — auditions, live shows,
-              voting and fan clubs, all in one app.
+              the World's First Digital Mobile Talent Contest in your pocket — auditions,
+              live shows, voting and fan clubs, all in one app.
             </p>
 
             {/* Free tier callouts */}
@@ -188,6 +209,31 @@ export default function Download() {
                   Installs directly — no app store, no account needed to start.
                 </p>
               )}
+
+              {/* Downloadable link — copy or share it anywhere */}
+              <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row lg:justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => void handleCopyLink()}
+                >
+                  <Link2 className="size-4 text-primary" />
+                  Copy download link
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-muted-foreground"
+                  onClick={() => void handleNativeShare()}
+                >
+                  <Share2 className="size-4" />
+                  Share the app
+                </Button>
+              </div>
+              <p className="mt-2 max-w-md break-all font-mono text-[11px] text-muted-foreground">
+                {downloadUrl}
+              </p>
             </div>
           </div>
 
@@ -248,8 +294,7 @@ export default function Download() {
       <footer className="border-t border-border/50 py-8">
         <div className="mx-auto max-w-5xl px-4 text-center text-xs text-muted-foreground">
           <p>
-            VStarz™ — Africa's Digital Talent Revolution · © 2026 Judah Corporation (Pty) Ltd ·
-            Powered by Roc Nation Africa
+            VStarz™ — The World's First Digital Mobile Talent Contest & Creator Economy Platform · © 2026 Judah Corporation (Pty) Ltd
           </p>
           <p className="mt-1">
             The free tier includes watching, following and limited voting. VStarz Gold and

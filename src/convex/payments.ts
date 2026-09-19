@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query, mutation, action, QueryCtx } from "./_generated/server";
+import { query, action, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 

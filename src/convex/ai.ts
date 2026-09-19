@@ -179,6 +179,116 @@ export const judgeAssistant = query({
   },
 });
 
+// ── AI Talent Agent: personalized career coach for the creator ───────────
+
+export const careerCoach = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not authenticated");
+    const user = await ctx.db.get(userId);
+    if (!user) throw new Error("User not found");
+
+    const entries = await ctx.db
+      .query("entries")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    entries.sort((a, b) => b.createdAt - a.createdAt);
+
+    const totalVotes = entries.reduce((s, e) => s + e.voteCount, 0);
+    const approved = entries.filter((e) => e.status === "approved").length;
+    const pending = entries.filter((e) => e.status === "pending").length;
+    const rejected = entries.filter((e) => e.status === "rejected").length;
+
+    const certs = await ctx.db
+      .query("academyEnrollments")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect()
+      .then((all) => all.filter((e) => e.completedAt !== undefined).length);
+
+    const daysSinceLastEntry =
+      entries.length === 0
+        ? null
+        : Math.floor((Date.now() - entries[0].createdAt) / 86_400_000);
+
+    // ── Signal-driven coaching plan ──
+    const actions: { title: string; body: string; link: string; icon: string }[] = [];
+
+    if (entries.length === 0) {
+      actions.push({
+        title: "Post your first audition",
+        body: "The pipeline starts on stage. A 60-second audition is the fastest way to get discovered.",
+        link: "/competitions",
+        icon: "video",
+      });
+    }
+    if (daysSinceLastEntry !== null && daysSinceLastEntry >= 14) {
+      actions.push({
+        title: "You've been quiet on stage",
+        body: `Your last audition was ${daysSinceLastEntry} days ago. Consistency is the #1 predictor of breakthrough.`,
+        link: "/competitions",
+        icon: "clock",
+      });
+    }
+    if (pending > 0) {
+      actions.push({
+        title: "Auditions awaiting review",
+        body: `${pending} audition${pending > 1 ? "s" : ""} pending review. Judges score faster when momentum is fresh — share your entry to build early votes.`,
+        link: "/competitions",
+        icon: "sparkles",
+      });
+    }
+    if (certs < 2) {
+      actions.push({
+        title: "Level up in the Academy",
+        body: `You have ${certs} certification${certs === 1 ? "" : "s"}. Two certifications unlock the Mentorship stage — start with a Starter track.`,
+        link: "/academy",
+        icon: "graduation",
+      });
+    }
+    if (totalVotes < 100 && entries.length > 0) {
+      actions.push({
+        title: "Rally your fanbase",
+        body: `${100 - totalVotes} more votes to the competition stage. Share your entry and go live to convert followers into voters.`,
+        link: "/competitions",
+        icon: "users",
+      });
+    }
+    if (rejected > 0) {
+      actions.push({
+        title: "Study the guidelines",
+        body: "A recent audition didn't pass review. Re-read the contest guidelines and re-enter — most rejections are fixable format issues.",
+        link: "/competitions",
+        icon: "shield",
+      });
+    }
+    if (approved >= 2 && certs >= 2 && totalVotes >= 100) {
+      actions.push({
+        title: "Ready for distribution",
+        body: "Your signals are strong. Submit to the Digital Record Label pipeline in the Network to get your catalog heard.",
+        link: "/network",
+        icon: "disc",
+      });
+    }
+
+    // ── Coach summary ──
+    const summary =
+      entries.length === 0
+        ? "Welcome to the Creator OS. Your first move: post a 60-second audition to an open contest."
+        : pending > 0
+          ? "Momentum phase: get eyes on your pending auditions while you stack Academy certifications."
+          : totalVotes >= 100
+            ? "Growth phase: your fanbase is real — keep weekly auditions and push toward distribution."
+            : "Build phase: stack votes and certifications. Consistency beats talent when talent isn't consistent.";
+
+    return {
+      summary,
+      actions: actions.slice(0, 4),
+      signals: { totalAuditions: entries.length, totalVotes, pending, approved, rejected, certifications: certs },
+    };
+  },
+});
+
 // ── Public AI insight feed (radar highlights + trends) ───────────────────
 
 export const insightFeed = query({

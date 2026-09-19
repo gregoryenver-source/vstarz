@@ -93,11 +93,14 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
-    onSelect(api)
+    // Initialize scroll state in a microtask so the effect body itself is
+    // side-effect free (setState-in-effect lint rule).
+    const raf = requestAnimationFrame(() => onSelect(api))
     api.on("reInit", onSelect)
     api.on("select", onSelect)
 
     return () => {
+      cancelAnimationFrame(raf)
       api?.off("select", onSelect)
     }
   }, [api, onSelect])

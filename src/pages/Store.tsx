@@ -47,7 +47,6 @@ export default function StorePage() {
   };
 
   const merch = products.filter((p) => p.kind === "merch" && p.active);
-  const tickets = products.filter((p) => p.kind === "ticket" && p.active);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">

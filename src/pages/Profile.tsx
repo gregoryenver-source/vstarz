@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
+import { SocialShareButtons } from "@/components/SocialShareButtons";
+import { LinkedAccounts } from "@/components/OAuthButtons";
 import { toast } from "sonner";
 import {
   User,
@@ -21,14 +23,13 @@ import {
   Star,
   Crown,
 } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
+import { useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function Profile() {
   const { userId } = useParams<{ userId?: string }>();
   const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
 
   const isOwn = !userId || userId === user?._id;
 
@@ -52,22 +53,15 @@ export default function Profile() {
 
   const categories = useQuery(api.profiles.getCategories, {}) ?? [];
 
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
-  const [talents, setTalents] = useState<string[]>([]);
-  const [isTalent, setIsTalent] = useState(false);
+  // Seed the edit form directly from the auth user. The form fields are the
+  // source of truth while editing; Convex updates stream back into `user`, and
+  // handleSave writes the same fields so the form never goes stale.
+  const [name, setName] = useState(user?.name ?? "");
+  const [username, setUsername] = useState(user?.username ?? "");
+  const [bio, setBio] = useState(user?.bio ?? "");
+  const [talents, setTalents] = useState<string[]>(user?.talents ?? []);
+  const [isTalent, setIsTalent] = useState(user?.isTalent ?? false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (isOwn && user) {
-      setName(user.name ?? "");
-      setUsername(user.username ?? "");
-      setBio(user.bio ?? "");
-      setTalents(user.talents ?? []);
-      setIsTalent(user.isTalent ?? false);
-    }
-  }, [isOwn, user]);
 
   if (isLoading) {
     return (
@@ -352,6 +346,23 @@ function ProfilePublic({
                 </Badge>
               ))}
             </div>
+            {/* Share this profile to Facebook / Instagram */}
+            <div className="mt-4">
+              <SocialShareButtons
+                compact
+                path={`/profile/${user._id}`}
+                title={user?.name ?? "Unnamed Star"}
+                subtitle={talentNames.length > 0 ? talentNames.join(" · ") : "Performer on VStarz"}
+              />
+            </div>
+            {isOwn && (
+              <div className="mt-4 rounded-xl border border-border/60 bg-card/40 p-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Connected accounts
+                </p>
+                <LinkedAccounts />
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-4 text-sm">
             {followerCount !== undefined && (

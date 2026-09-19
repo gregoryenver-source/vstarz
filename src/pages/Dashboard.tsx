@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AppShell } from "@/components/AppShell";
+import { HottestAuditions } from "@/components/HottestAuditions";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import {
   Trophy,
   Radio,
   Video,
-  Crown,
   Sparkles,
   ArrowRight,
   Coins,
@@ -18,7 +19,7 @@ import {
   Star,
   Radar,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useEffect } from "react";
 
 const statusMeta: Record<string, { label: string; className: string }> = {
@@ -30,7 +31,6 @@ const statusMeta: Record<string, { label: string; className: string }> = {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const seed = useMutation(api.bootstrap.seedAll);
   const demo = useMutation(api.bootstrap.createDemoData);
@@ -38,8 +38,9 @@ export default function Dashboard() {
   const live = useQuery(api.live.listLive, {}) ?? { live: [], scheduled: [] };
 
   useEffect(() => {
-    seed({});
-    demo({});
+    // Seeding is best-effort: never let a backend error break page render.
+    seed({}).catch(() => {});
+    demo({}).catch(() => {});
   }, [seed, demo]);
 
   const openComps = comps.filter((c) => c.status === "submissions_open");
@@ -58,6 +59,11 @@ export default function Dashboard() {
 
   return (
     <AppShell>
+      {/* Hottest auditions this week — video carousel at the top of the page */}
+      <QueryErrorBoundary fallback={null}>
+        <HottestAuditions />
+      </QueryErrorBoundary>
+
       {/* Hero */}
       <div className="card-spot relative mb-8 overflow-hidden rounded-3xl p-6 sm:p-10">
         <div className="absolute inset-0 bg-stage-grid opacity-30" />
@@ -74,8 +80,8 @@ export default function Dashboard() {
           </h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
             Post auditions, grow your following, and follow every contest
-            from your personal dashboard. Africa's Digital Talent Revolution
-            starts here.
+            from your personal dashboard. Discover, compete, create, and earn —
+            all from your mobile device.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="font-semibold">

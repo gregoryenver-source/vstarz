@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import {
   Crown,
   Coins,
-  Zap,
   Star,
   Check,
   Loader2,
@@ -47,7 +46,8 @@ export default function Boost() {
 
       if (res && typeof res === "object" && "url" in res && res.url) {
         // Real Stripe checkout session
-        window.location.href = res.url as string;
+        const checkoutUrl = res.url as string;
+        window.location.assign(checkoutUrl);
         return;
       }
 

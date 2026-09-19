@@ -10,7 +10,6 @@
     { "source": "/vstarz", "destination": "/vstarz/index.html" },
     { "source": "/vstarz/:path*", "destination": "/vstarz/index.html" }
   ],
-  "trailingSlash": false,
   "headers": [
     {
       "source": "/vstarz/assets/(.*)",

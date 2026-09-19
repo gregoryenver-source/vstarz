@@ -38,6 +38,89 @@ export const listByCompetition = query({
   },
 });
 
+// Top-voted approved auditions from the last 7 days — powers the
+// "Hottest auditions this week" carousel on the dashboard.
+// Only genuinely uploaded auditions qualify: seeded/demo clips (which carry
+// no videoStorageId) are excluded so the ranking reflects real submissions.
+export const hottest = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const limit = Math.min(args.limit ?? 9, 24);
+    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+    const hot = (await ctx.db.query("entries").collect()).filter(
+      (e) =>
+        e.status === "approved" &&
+        e.createdAt >= oneWeekAgo &&
+        e.videoStorageId !== undefined,
+    );
+    hot.sort((a, b) => b.voteCount - a.voteCount || b.createdAt - a.createdAt);
+
+    return await Promise.all(
+      hot.slice(0, limit).map(async (e) => {
+        const [u, comp] = await Promise.all([
+          ctx.db.get(e.userId),
+          ctx.db.get(e.competitionId),
+        ]);
+        return {
+          _id: e._id,
+          title: e.title,
+          videoUrl: e.videoUrl,
+          voteCount: e.voteCount,
+          createdAt: e.createdAt,
+          user: u
+            ? { _id: u._id, name: u.name, username: u.username, image: u.image }
+            : null,
+          competition: comp
+            ? { _id: comp._id, title: comp.title, status: comp.status }
+            : null,
+        };
+      }),
+    );
+  },
+});
+
+// Single audition lookup for shareable deep links (/auditions/:id).
+// Public: returns approved entries to anyone; pending/rejected resolve to null
+// so unapproved content is never exposed through shared links.
+export const getById = query({
+  args: { id: v.id("entries") },
+  handler: async (ctx, args) => {
+    const e = await ctx.db.get(args.id);
+    if (!e) return null;
+
+    const [u, comp] = await Promise.all([
+      ctx.db.get(e.userId),
+      ctx.db.get(e.competitionId),
+    ]);
+
+    const viewerId = await getAuthUserId(ctx);
+    const isOwnerOrAdmin =
+      viewerId === e.userId ||
+      (viewerId !== null &&
+        (await ctx.db.get(viewerId))?.role === "admin");
+
+    if (e.status !== "approved" && !isOwnerOrAdmin) return null;
+
+    return {
+      _id: e._id,
+      title: e.title,
+      description: e.description,
+      videoUrl: e.videoUrl,
+      videoStorageId: e.videoStorageId,
+      voteCount: e.voteCount,
+      status: e.status,
+      createdAt: e.createdAt,
+      user: u
+        ? { _id: u._id, name: u.name, username: u.username, image: u.image }
+        : null,
+      competition: comp
+        ? { _id: comp._id, title: comp.title, status: comp.status }
+        : null,
+    };
+  },
+});
+
 export const listMine = query({
   args: {},
   handler: async (ctx) => {
@@ -74,14 +157,18 @@ export const generateVideoUploadUrl = mutation({
   },
 });
 
-// Step 2: persist the entry after the client uploaded the file
+// Step 2: persist the entry after the client uploaded the file.
+// NOTE: the video bytes live in Convex Storage. Never accept a full video
+// (or a base64 data URL) as `videoUrl` — documents cap at 1MB and storing
+// media inline makes every submission fail. We resolve the playable URL
+// from the storage ID here instead.
 export const create = mutation({
   args: {
     competitionId: v.id("competitions"),
     title: v.string(),
     description: v.optional(v.string()),
     videoStorageId: v.id("_storage"),
-    videoUrl: v.string(),
+    videoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { userId } = await requireUser(ctx);
@@ -102,12 +189,17 @@ export const create = mutation({
       throw new Error("You already submitted an entry to this competition");
     }
 
+    const videoUrl =
+      args.videoUrl ??
+      (await ctx.storage.getUrl(args.videoStorageId)) ??
+      "";
+
     const id = await ctx.db.insert("entries", {
       competitionId: args.competitionId,
       userId,
       title: args.title.trim(),
       description: args.description?.trim(),
-      videoUrl: args.videoUrl,
+      videoUrl,
       videoStorageId: args.videoStorageId,
       status: "pending",
       voteCount: 0,

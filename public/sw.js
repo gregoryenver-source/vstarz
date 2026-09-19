@@ -1,7 +1,7 @@
 /* VStarz service worker — offline shell for the installed PWA.
    Registered with a relative scope so it works at / (preview) and /vstarz/ (production). */
-const CACHE = "vstarz-v1";
-const PRECACHE = ["./", "./manifest.webmanifest", "./logo.svg", "./icons/icon-192.png", "./icons/icon-512.png"];
+const CACHE = "vstarz-v4";
+const PRECACHE = ["./", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

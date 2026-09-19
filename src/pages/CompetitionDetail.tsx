@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EntryComments } from "@/components/EntryComments";
+import { SocialShareButtons } from "@/components/SocialShareButtons";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import {
@@ -55,7 +56,6 @@ export default function CompetitionDetail() {
   const comp = useQuery(api.competitions.get, compId ? { id: compId } : "skip");
   const entries = useQuery(api.entries.listByCompetition, compId ? { competitionId: compId } : "skip") ?? [];
   const myVotes = useQuery(api.voting.getMyVotes, compId ? { competitionId: compId } : "skip") ?? [];
-  const feedbackCountsReady = true;
 
   const vote = useMutation(api.voting.vote);
   const generateUpload = useMutation(api.entries.generateVideoUploadUrl);
@@ -111,6 +111,16 @@ export default function CompetitionDetail() {
 
   const handleFile = async (file: File) => {
     if (!compId) return;
+    // Sanity checks so users get clear feedback instead of a cryptic error.
+    const MAX_BYTES = 100 * 1024 * 1024; // 100 MB — plenty for a 2-5 min clip
+    if (!file.type.startsWith("video/")) {
+      toast.error("Please choose a video file (mp4, mov, webm…)");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      toast.error("Video is too large. Please keep it under 100 MB.");
+      return;
+    }
     setUploading(true);
     setProgress(10);
     try {
@@ -123,14 +133,11 @@ export default function CompetitionDetail() {
       });
       if (!res.ok) throw new Error("Video upload failed");
       const { storageId } = (await res.json()) as { storageId: string };
-      setProgress(80);
-      const url = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-      setVideoMeta({ storageId, url });
       setProgress(100);
+      // Local preview via object URL — the real playback URL is resolved
+      // server-side from the storageId, so nothing huge is stored in the DB.
+      const preview = URL.createObjectURL(file);
+      setVideoMeta({ storageId, url: preview });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -141,17 +148,20 @@ export default function CompetitionDetail() {
   const handleSubmit = async () => {
     if (!compId || !videoMeta) return;
     try {
+      // The server resolves the playable URL from videoStorageId — never send
+      // video bytes or data URLs through the mutation (they exceed the 1MB
+      // document limit and cause the upload error).
       await createEntry({
         competitionId: compId,
         title,
         description: desc || undefined,
         videoStorageId: videoMeta.storageId as never,
-        videoUrl: videoMeta.url,
       });
       toast.success("Audition submitted! It will appear once approved.");
       setSubmitOpen(false);
       setTitle("");
       setDesc("");
+      if (videoMeta.url.startsWith("blob:")) URL.revokeObjectURL(videoMeta.url);
       setVideoMeta(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Submission failed");
@@ -190,7 +200,13 @@ export default function CompetitionDetail() {
             </span>
           )}
         </div>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <SocialShareButtons
+            compact
+            path={`/competitions/${comp._id}`}
+            title={comp.title}
+            subtitle={comp.prize ? `Prize: ${comp.prize}` : "Join the contest on VStarz"}
+          />
           {submissionsAllowed && !alreadySubmitted && (
             <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
               <DialogTrigger asChild>
