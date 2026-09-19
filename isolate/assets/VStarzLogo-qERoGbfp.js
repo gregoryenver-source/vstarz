@@ -1,1 +1,0 @@
-import{j as o}from"./framer-motion-B-Zw8xvZ.js";import{c as t}from"./utils-BK-bvndG.js";function n({className:r,glow:a=!0}){return o.jsx("img",{src:"/vstarz-mark.webp",alt:"VStarz",role:"img",draggable:!1,className:t("shrink-0 select-none object-contain",a&&"drop-shadow-[0_0_12px_rgba(255,42,51,0.45)]",r)})}export{n as V};

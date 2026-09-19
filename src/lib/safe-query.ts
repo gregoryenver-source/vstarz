@@ -17,6 +17,10 @@ type QueryRef = FunctionReference<"query">;
  * tree. This hook keeps the same live-subscription behaviour but swallows
  * server errors and returns `undefined` instead, so pages render their
  * empty/default states and recover automatically once the backend catches up.
+ *
+ * Uses the client's real subscription API: `watchQuery()` returns a Watch
+ * whose `localQueryResult()` yields the latest result (and throws when the
+ * server rejected the query — that is the error we swallow).
  */
 export function useSafeQuery<Query extends QueryRef>(
   query: Query,
@@ -49,28 +53,18 @@ export function useSafeQuery<Query extends QueryRef>(
 
     let unsubscribe: (() => void) | undefined = undefined;
     try {
-      const watch = (
-        client as unknown as {
-          watch: (
-            q: QueryRef,
-            a: FunctionArgs<Query>,
-          ) => {
-            onUpdate: (cb: () => void) => () => void;
-            currentResults: () => FunctionReturnType<Query>;
-          };
-        }
-      ).watch(query, callArgs);
+      const watch = client.watchQuery(query, callArgs);
 
       const read = () => {
         if (!alive) return;
         try {
-          const value = watch.currentResults();
+          const value = watch.localQueryResult();
           erroredRef.current = false;
           setData(value);
         } catch (err) {
-          // The watch throws from currentResults() when the server rejects
-          // the query (missing function, auth failure, etc.). Render the
-          // default state instead of propagating the error into React.
+          // localQueryResult() throws when the server rejected the query
+          // (missing function, auth failure, etc.). Render the default
+          // state instead of propagating the error into React.
           if (!erroredRef.current) {
             erroredRef.current = true;
             console.warn(
