@@ -191,3 +191,75 @@ export const trackInstall = mutation({
     });
   },
 });
+
+// Daily growth history since launch. The database has recorded every account
+// and session since day one, so this recovers the full timeline even though
+// install tracking only started later.
+export const growth = query({
+  args: { days: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const days = Math.min(Math.max(args.days ?? 14, 1), 60);
+
+    const dayStart = (t: number) => {
+      const d = new Date(t);
+      d.setUTCHours(0, 0, 0, 0);
+      return d.getTime();
+    };
+    const today = dayStart(Date.now());
+    const buckets: {
+      day: string;
+      signups: number;
+      sessions: number;
+      installs: number;
+    }[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const start = today - i * 86_400_000;
+      buckets.push({
+        day: new Date(start).toISOString().slice(0, 10),
+        signups: 0,
+        sessions: 0,
+        installs: 0,
+      });
+    }
+    const indexOf = (t: number) => {
+      const offset = Math.floor((today - dayStart(t)) / 86_400_000);
+      return offset >= 0 && offset < days ? days - 1 - offset : -1;
+    };
+
+    const [users, sessions, installs] = await Promise.all([
+      ctx.db.query("users").collect(),
+      ctx.db.query("authSessions").collect(),
+      ctx.db.query("appInstalls").collect(),
+    ]);
+    for (const u of users) {
+      const i = indexOf(u._creationTime);
+      if (i >= 0) buckets[i].signups += 1;
+    }
+    for (const s of sessions) {
+      const i = indexOf(s._creationTime);
+      if (i >= 0) buckets[i].sessions += 1;
+    }
+    for (const inst of installs) {
+      const i = indexOf(inst.createdAt);
+      if (i >= 0) buckets[i].installs += 1;
+    }
+
+    const realUsers = users.filter((u) => !u.isAnonymous).length;
+    return {
+      daily: buckets,
+      totals: {
+        accounts: users.length,
+        verifiedAccounts: realUsers,
+        sessions: sessions.length,
+        installs: installs.length,
+        launchDay:
+          users.length > 0
+            ? new Date(
+                Math.min(...users.map((u) => u._creationTime)),
+              ).toISOString().slice(0, 10)
+            : null,
+      },
+    };
+  },
+});

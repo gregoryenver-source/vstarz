@@ -54,6 +54,7 @@ import {
   Store,
   Plus,
   Smartphone,
+  TrendingUp,
 } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { useState } from "react";
@@ -94,6 +95,7 @@ export default function Admin() {
   const bannerList = useSafeQuery(api.banners.listAll, isAdmin ? {} : "skip") ?? [];
   const storeProducts = useSafeQuery(api.store.listProducts, isAdmin ? {} : "skip") ?? [];
   const storeEvents = useSafeQuery(api.store.listEvents, isAdmin ? {} : "skip") ?? [];
+  const growth = useSafeQuery(api.admin.growth, isAdmin ? { days: 14 } : "skip");
 
   const reviewVerification = useMutation(api.network.reviewVerification);
   const reviewLabel = useMutation(api.network.reviewLabelSubmission);
@@ -229,6 +231,10 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="banners">Banners</TabsTrigger>
           <TabsTrigger value="store">Store</TabsTrigger>
+          <TabsTrigger value="growth" className="gap-1.5">
+            <TrendingUp className="size-3.5" />
+            Growth
+          </TabsTrigger>
         </TabsList>
 
         {/* Revenue */}
@@ -846,6 +852,73 @@ export default function Admin() {
               </div>
             ))}
           </div>
+        </TabsContent>
+
+        {/* Growth — full history since launch */}
+        <TabsContent value="growth" className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+            {[
+              { label: "Total accounts", value: growth?.totals.accounts ?? "—" },
+              {
+                label: "Verified signups",
+                value: growth?.totals.verifiedAccounts ?? "—",
+              },
+              { label: "Sessions created", value: growth?.totals.sessions ?? "—" },
+              { label: "App installs", value: growth?.totals.installs ?? "—" },
+            ].map((c) => (
+              <div key={c.label} className="card-spot rounded-2xl p-5">
+                <p className="font-display text-2xl font-bold">{c.value}</p>
+                <p className="text-xs text-muted-foreground">{c.label}</p>
+              </div>
+            ))
+            }
+          </div>
+
+          <div className="card-spot rounded-2xl p-5">
+            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="font-display text-lg font-semibold">
+                Daily activity — last 14 days
+              </h3>
+              {growth?.totals.launchDay && (
+                <p className="text-xs text-muted-foreground">
+                  Tracking since {growth.totals.launchDay} (launch day)
+                </p>
+              )}
+            </div>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={growth?.daily ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.98 0 0 / 8%)" />
+                  <XAxis
+                    dataKey="day"
+                    stroke="oklch(0.72 0 0)"
+                    fontSize={11}
+                    tickFormatter={(v: string) => v.slice(5)}
+                  />
+                  <YAxis stroke="oklch(0.72 0 0)" fontSize={12} allowDecimals={false} />
+                  <ReTooltip
+                    contentStyle={{
+                      background: "oklch(0.185 0 0)",
+                      border: "1px solid oklch(0.98 0 0 / 12%)",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Bar dataKey="signups" name="New accounts" fill="oklch(0.72 0.19 27)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="sessions" name="Sessions" fill="oklch(0.65 0.15 250)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="installs" name="App installs" fill="oklch(0.72 0.17 145)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Accounts and sessions have been recorded in the database since launch day
+            ({growth?.totals.launchDay ?? "—"}), so this history is complete. App installs
+            are counted from {growth?.totals.launchDay ?? "the install tracking launch"} —
+            the counter went live {new Date().getFullYear()} and only records events after
+            it was deployed. Detailed visitor analytics are in the Vercel dashboard under
+            the project's Analytics tab.
+          </p>
         </TabsContent>
       </Tabs>
 
