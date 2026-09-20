@@ -651,6 +651,20 @@ const schema = defineSchema(
       body: v.string(),
       createdAt: v.number(),
     }).index("by_post", ["postId", "createdAt"]),
+
+    // ── App install tracking (PWA installs from the /download page) ─────
+    // First-party counter so admins can see how many times the app has
+    // been downloaded/installed from the Vercel link. Anonymous-safe.
+    appInstalls: defineTable({
+      kind: v.union(
+        v.literal("page_view"), // someone opened /download
+        v.literal("install_started"), // browser install prompt accepted
+        v.literal("install_completed"), // app installed to home screen
+      ),
+      platform: v.optional(v.string()), // android | ios | desktop
+      referrer: v.optional(v.string()),
+      createdAt: v.number(),
+    }).index("by_kind", ["kind"]),
   },
   {
     schemaValidation: false,

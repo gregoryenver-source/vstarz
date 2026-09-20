@@ -53,6 +53,7 @@ import {
   Megaphone,
   Store,
   Plus,
+  Smartphone,
 } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { useState } from "react";
@@ -167,6 +168,11 @@ export default function Admin() {
     { label: "Competitions", value: stats?.competitions ?? "—", icon: Trophy },
     { label: "Entries", value: stats?.entries ?? "—", icon: Video },
     { label: "Live rooms", value: stats?.liveRooms ?? "—", icon: Radio },
+    {
+      label: "App downloads",
+      value: stats?.appInstalls ?? "—",
+      icon: Smartphone,
+    },
   ];
 
   return (
@@ -184,7 +190,7 @@ export default function Admin() {
       </div>
 
       {/* Stat cards */}
-      <div className="mb-8 grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-4 xl:grid-cols-5">
         {statCards.map((s) => (
           <div key={s.label} className="card-spot flex items-center gap-4 rounded-2xl p-5">
             <div className="flex size-10 items-center justify-center rounded-xl bg-primary/15 text-primary">

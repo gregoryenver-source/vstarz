@@ -151,17 +151,43 @@ export const platformStats = query({
   args: {},
   handler: async (ctx) => {
     await requireAdmin(ctx);
-    const [users, comps, entries, rooms] = await Promise.all([
+    const [users, comps, entries, rooms, installs] = await Promise.all([
       ctx.db.query("users").collect(),
       ctx.db.query("competitions").collect(),
       ctx.db.query("entries").collect(),
       ctx.db.query("liveRooms").collect(),
+      ctx.db.query("appInstalls").collect(),
     ]);
     return {
       users: users.length,
       competitions: comps.length,
       entries: entries.length,
       liveRooms: rooms.filter((r) => r.status === "live").length,
+      // App download funnel from the /download page (Vercel link)
+      appInstalls: installs.length,
+      installs: installs.filter((i) => i.kind === "install_completed").length,
     };
+  },
+});
+
+// Public, no-auth event sink for the /download page. Anonymous-safe: it only
+// records the event kind, platform family and referrer — never user data.
+export const trackInstall = mutation({
+  args: {
+    kind: v.union(
+      v.literal("page_view"),
+      v.literal("install_started"),
+      v.literal("install_completed"),
+    ),
+    platform: v.optional(v.string()),
+    referrer: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("appInstalls", {
+      kind: args.kind,
+      platform: args.platform,
+      referrer: args.referrer,
+      createdAt: Date.now(),
+    });
   },
 });

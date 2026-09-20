@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { VStarzLogo } from "@/components/VStarzLogo";
 import { useAuth } from "@/hooks/use-auth";
+import { trackAppDownload, trackDownloadPageView } from "@/lib/analytics";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import {
@@ -52,11 +53,13 @@ export default function Download() {
   const [installState, setInstallState] = useState<"idle" | "prompted" | "done">("idle");
 
   useEffect(() => {
+    trackDownloadPageView();
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       setInstallEvent(e as BeforeInstallPromptEvent);
     };
     const onInstalled = () => {
+      trackAppDownload("install_completed");
       setInstalled(true);
       setInstallState("done");
     };
@@ -70,6 +73,7 @@ export default function Download() {
 
   const handleInstall = async () => {
     if (installEvent) {
+      trackAppDownload("install_started");
       await installEvent.prompt();
       const choice = await installEvent.userChoice;
       if (choice.outcome === "accepted") setInstallState("done");
